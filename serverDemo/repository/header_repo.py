@@ -1,3 +1,4 @@
+from curses.ascii import TAB
 import sys
 sys.path.append("..")
 
@@ -51,7 +52,7 @@ class HeaderRepo(object):
 
     '''
     :find header data entry in database by timestamp
-    :return True(find) or False(not find)
+    :return: HeaderData(empty means fail)
     '''
     def find_by_timestamp(self, timestamp):
         data = self.fdb_tool.query(self.fdb_tool.db, TIME_INDEX_NAME, timestamp)
@@ -62,10 +63,45 @@ class HeaderRepo(object):
         header_data.message_id = data[0]
         entry = self.fdb_tool.query(self.fdb_tool.db, TABLE_NAME, header_data.message_id)
         if entry == None:
-            return False
+            return HeaderData()
         header_data.time_stamp = entry[0]
         header_data.car_id = entry[1]
         return header_data
+
+
+    '''
+    :find header data entries in database by timestamp in a range
+    :return: a list of HeaderData
+    '''
+    def find_by_timestamps_in_range(self, lower_bound=None, upper_bound=None):
+        lower_val = ('',)
+        upper_val = ('\xFF',)
+        if lower_bound != None:
+            lower_val = (lower_bound,)
+        if upper_bound != None:
+            upper_val = (upper_bound,)
+        
+        # find the timestamps and their according message id
+        data = self.fdb_tool.query_range(self.fdb_tool.db, TIME_INDEX_NAME, lower_val, upper_val)
+        result = list()
+
+        # find message_id's according header data
+        # TODO: maybe can use query_range too?
+        data_len = len(data)
+        if data_len == 0:
+            return result
+
+        lower_message_id = data[0][0]
+        upper_message_id = data[-1][0] + 1  # because of left-closed and right-open
+        headers = self.fdb_tool.query_range(self.fdb_tool.db, TABLE_NAME, (lower_message_id,), (upper_message_id,))
+        for key in headers:
+            header_data = HeaderData()
+            header_data.message_id = key[0]
+            header_data.time_stamp = headers[key][0]
+            header_data.car_id = headers[key][1]
+            result.append(header_data)
+        
+        return result
 
     
     '''
@@ -73,7 +109,7 @@ class HeaderRepo(object):
     :return: a list of header_data or empty list
     '''
     def find_by_car_id(self, car_id):
-        indexes = self.fdb_tool.query_range(self.fdb_tool.db, CAR_INDEX_NAME, car_id)
+        indexes = self.fdb_tool.query_condition_all(self.fdb_tool.db, CAR_INDEX_NAME, car_id)
         result = list()
         if indexes == None or len(indexes) == 0:
             return result
@@ -89,5 +125,6 @@ class HeaderRepo(object):
                 result.append(header_data)
 
         return result
-            
+
+        
     

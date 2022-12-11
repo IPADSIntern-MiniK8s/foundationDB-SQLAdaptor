@@ -3,12 +3,13 @@ import fdb.tuple
 
 fdb.api_version(710)
 DATABASE_NAME = ('car_data',)
-TABLE_NAMES = ['header', 'geometry', 'picture', 'time_index', 'car_index']
+TABLE_NAMES = ['header', 'geometry', 'picture', 'time_index', 'car_index', 'test1']
 TABLE_INDEXS = {'header': 't0', 
                 'geometry': 't1',
                 'picture': 't2', 
                 'time_index': 'i0', 
                 'car_index': 'i1',
+                'test1': 'r1',
                 }
 
 
@@ -130,7 +131,7 @@ class FdbTool(object):
     :return: the data wanted (dict) or None
     '''
     @fdb.transactional
-    def query_range(self, tr, table_name, key):
+    def query_condition_all(self, tr, table_name, key):
         if table_name not in self.tables:
             return None
         else:
@@ -143,5 +144,32 @@ class FdbTool(object):
             return result
                   
     
+    '''
+    :get a set of data satisfied the range
+    :param: upper bound and lower bound should be tuple
+    :NOTE: the interval left-closed and right-open
+    :return: the data wanted (dict) or None
+    '''
+    @fdb.transactional
+    def query_range(self, tr, table_name, lower_bound=None, upper_bound=None):
+        packed_upper_key = ''
+        packed_lower_key = ''
+
+        if table_name not in self.tables:
+            return None
+        else:
+            if upper_bound != None:
+                packed_upper_key = self.dir[TABLE_INDEXS[table_name]].pack(upper_bound)
+            if lower_bound != None:
+                packed_lower_key = self.dir[TABLE_INDEXS[table_name]].pack(lower_bound)
+            
+            # raw_data = self.db.get_range(packed_lower_key, packed_upper_key)
+            raw_data = self.db.get_range(packed_lower_key, packed_upper_key)
+            result = dict()
+            for k, v in raw_data:
+                key = self.dir[TABLE_INDEXS[table_name]].unpack(k)
+                value = fdb.tuple.unpack(v)
+                result[key] = value
+            return result
 
 

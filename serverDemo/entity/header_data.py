@@ -1,6 +1,7 @@
 import sys
 sys.path.append("..")
 
+HEADER_COLUMNS = ['message_id', 'time_stamp', 'car_id']
 
 class HeaderData(object):
     # def __init__(self, message_id, time_stamp, car_id):
