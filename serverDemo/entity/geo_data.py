@@ -1,6 +1,5 @@
 import sys
 sys.path.append("..")
-from basic_ops import FdbTool
 
 GEO_COLUMNS = ['message_id', 'x', 'y', 'v_x', 'v_y', 'v_r', 'direction']
 

@@ -80,9 +80,9 @@ class FdbTool(object):
             packed_key = self.dir[TABLE_INDEXS[table_name]].pack(key)
         else:
             packed_key = self.dir[TABLE_INDEXS[table_name]].pack((key,))
-        # check whether the data exist
-        if self.db[packed_key] == None:
-            return False
+        # check whether the data exist, if not exist, equal to insert 
+        # if self.db[packed_key] == None:
+        #     return False
         self.db[packed_key] = fdb.tuple.pack(value)
         return True
 
@@ -107,6 +107,9 @@ class FdbTool(object):
         return result
 
 
+    # TODO: There is one thing that needs to be unified here: 
+    # `query_all` returns  a key which is a single value, 
+    # while query_range returns a tuple
     '''
     :get the specific whole table from database
     :return: the data wanted (dict) or None
@@ -152,24 +155,31 @@ class FdbTool(object):
     '''
     @fdb.transactional
     def query_range(self, tr, table_name, lower_bound=None, upper_bound=None):
-        packed_upper_key = ''
+        packed_upper_key = '\xFF'
         packed_lower_key = ''
 
+        # TODO: for the infinite bound, I am not sure
         if table_name not in self.tables:
             return None
         else:
             if upper_bound != None:
                 packed_upper_key = self.dir[TABLE_INDEXS[table_name]].pack(upper_bound)
+            else: 
+                packed_upper_key = self.dir[TABLE_INDEXS[table_name]].pack(('\xFF',))
             if lower_bound != None:
                 packed_lower_key = self.dir[TABLE_INDEXS[table_name]].pack(lower_bound)
-            
+            else:
+                packed_lower_key = self.dir[TABLE_INDEXS[table_name]].pack(('',))
+
             # raw_data = self.db.get_range(packed_lower_key, packed_upper_key)
             raw_data = self.db.get_range(packed_lower_key, packed_upper_key)
             result = dict()
             for k, v in raw_data:
                 key = self.dir[TABLE_INDEXS[table_name]].unpack(k)
+                print(key[0])
                 value = fdb.tuple.unpack(v)
                 result[key] = value
+                print(value[0])
             return result
 
 

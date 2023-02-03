@@ -10,6 +10,10 @@ def basic_test():
     print(sql)
     execution_builder.generate_execution(sql)
 
+    sql = "Select name1, name2 from emp where sal > 2000 AND sal < (3000 - (3.0 * 5));"
+    print(sql)
+    execution_builder.generate_execution(sql)
+
     print('------------------------- test insert -------------------------')
     sql = "INSERT INTO Websites (name, url, alexa, country) VALUES ('百度','https://www.baidu.com/','4','CN');"
     print(sql)

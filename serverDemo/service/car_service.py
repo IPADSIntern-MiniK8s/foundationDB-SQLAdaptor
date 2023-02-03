@@ -6,8 +6,7 @@ import struct
 from entity import GeoData
 from entity import HeaderData
 from service import DataService
-from repository import HeaderRepo
-from repository import GeoRepo
+from repository import GeoRepo, ImgRepo, HeaderRepo
 
 
 TIMESTAMP_LENGTH = 19
@@ -66,6 +65,8 @@ class CarService(object):
         ret = self.header_repo.save(message_id, timestamp, car_id)
         assert ret == True
         ret = self.geo_repo.save(message_id, x, y, v_x, v_y, v_r, direction)
+        assert ret == True
+        ret = self.img_repo.save(message_id, image)
         assert ret == True
         return ret
     
