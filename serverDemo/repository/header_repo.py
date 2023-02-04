@@ -40,14 +40,11 @@ class HeaderRepo(object):
     '''
     def check_column(self, key, value, column):
         header_data = HeaderData()
-        if column == None or HEADER_COLUMNS[0] in column:
-            header_data.message_id = key
-        else: 
-            header_data.message_id = None
+        header_data.message_id = key
         if column == None or HEADER_COLUMNS[1] in column:
             header_data.time_stamp = value[0]
         else:
-            header_data.message_id = None
+            header_data.time_stamp = None
         if column == None or HEADER_COLUMNS[2] in column:
             header_data.car_id = value[1]
         else:
@@ -68,7 +65,20 @@ class HeaderRepo(object):
         header_data = self.check_column(message_id, data, column)
         return header_data
 
+
+    def find_by_message_id_range(self, column, lower_message_id=None, upper_message_id=None):
+        result = list()
+        data = self.fdb_tool.query_range(self.fdb_tool.db, TABLE_NAME, (lower_message_id, ''), (upper_message_id, ''))
+
+        if data == None or len(data) == 0:
+            return result
+        
+        for key, value in data.items():
+            header_data = self.check_column(key[0], value, column)
+            result.append(header_data)
+        return result
     
+
     '''
     : find all header data entry
     : return: a list of data entry
@@ -86,33 +96,35 @@ class HeaderRepo(object):
 
     '''
     :find header data entry in database by timestamp
-    :return: HeaderData(empty means fail)
+    :return: a list of HeaderData(empty means fail)
     '''
     def find_by_timestamp(self, timestamp, column):
-        data = self.fdb_tool.query(self.fdb_tool.db, TIME_INDEX_NAME, timestamp)
-        header_data = HeaderData()
+        data = self.fdb_tool.query_condition_all(self.fdb_tool.db, TIME_INDEX_NAME, timestamp)
+        result = list()
         if data == None or len(data) == 0:
-            return header_data
+            return result
         
-        # header_data.message_id = data[0]
-        entry = self.fdb_tool.query(self.fdb_tool.db, TABLE_NAME, data[0])
-        if entry == None:
-            return HeaderData()
-        header_data = self.check_column(data[0], entry, column)
-        return header_data
+        for elem in data:
+            # the structure of index: (time_stamp, message_id)
+            header_data = HeaderData()
+            entry = self.fdb_tool.query(self.fdb_tool.db, TABLE_NAME, elem[1])
+            if entry != None:
+                header_data = self.check_column(elem[1], entry, column)
+                result.append(header_data)
+        return result
 
 
     '''
     :find header data entries in database by timestamp in a range
     :return: a list of HeaderData
     '''
-    def find_by_timestamps_in_range(self, column, lower_bound=None, upper_bound=None):
+    def find_by_timestamps_range(self, column, lower_bound=None, upper_bound=None):
         lower_val = None
         upper_val = None
         if lower_bound != None:
-            lower_val = (lower_bound,)
+            lower_val = (lower_bound, '')
         if upper_bound != None:
-            upper_val = (upper_bound,)
+            upper_val = (upper_bound, '\xFF')
         
         # find the timestamps and their according message id
         data = self.fdb_tool.query_range(self.fdb_tool.db, TIME_INDEX_NAME, lower_val, upper_val)
@@ -121,18 +133,14 @@ class HeaderRepo(object):
         # find message_id's according header data
         data_len = len(data)
         if data_len == 0:
+            print('the first step of timestamp is empty')
             return result
-
-        lower_message_id = data[0][0]
-        upper_message_id = data[-1][0]  # left-closed and right-open
-        headers = self.fdb_tool.query_range(self.fdb_tool.db, TABLE_NAME, (lower_message_id,), (upper_message_id,))
-        for key in headers:
-            # header_data = HeaderData()
-            # header_data.message_id = key[0]
-            # header_data.time_stamp = headers[key][0]
-            # header_data.car_id = headers[key][1]
-            header_data = self.check_column(key[0], headers[key], column)
-            result.append(header_data)
+        for elem in data:
+            message_id = elem[1]
+            header = self.fdb_tool.query(self.fdb_tool.db, TABLE_NAME, message_id)
+            if header != None:
+                header_data = self.check_column(message_id, header, column)
+                result.append(header_data)
         
         return result
 

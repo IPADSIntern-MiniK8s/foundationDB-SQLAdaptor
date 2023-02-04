@@ -1,8 +1,6 @@
 import sys
 sys.path.append("..")
 
-from ctypes import sizeof
-import struct 
 from entity import GeoData
 from entity import HeaderData
 from service import DataService
@@ -17,7 +15,7 @@ class CarService(object):
     def __init__(self):
         self.header_repo = HeaderRepo()
         self.geo_repo = GeoRepo()
-
+        self.img_repo = ImgRepo()
 
     '''
     :parse inbound data and get the attributes
@@ -32,22 +30,22 @@ class CarService(object):
         car_id = int(bytes[pos: pos + INT_LENGTH].decode('utf-8'))
         print('car_id: ', car_id)
         pos += INT_LENGTH 
-        x = float(bytes[pos: pos + FLOAT_LENGTH].decode('utf-8'))   # TODO: the accuracy is unchecked
+        x = int(bytes[pos: pos + FLOAT_LENGTH].decode('utf-8'))   # TODO: the accuracy is unchecked
         print('x: ', x)
         pos += FLOAT_LENGTH 
-        y = float(bytes[pos: pos + FLOAT_LENGTH].decode('utf-8'))
+        y = int(bytes[pos: pos + FLOAT_LENGTH].decode('utf-8'))
         print('y: ', y)
         pos += FLOAT_LENGTH
-        v_x = float(bytes[pos: pos + FLOAT_LENGTH].decode('utf-8'))
+        v_x = int(bytes[pos: pos + FLOAT_LENGTH].decode('utf-8'))
         print('v_x: ', v_x)
         pos += FLOAT_LENGTH 
-        v_y = float(bytes[pos: pos + FLOAT_LENGTH].decode('utf-8'))
+        v_y = int(bytes[pos: pos + FLOAT_LENGTH].decode('utf-8'))
         print('v_y: ', v_y)
         pos += FLOAT_LENGTH 
-        v_r = float(bytes[pos: pos + FLOAT_LENGTH].decode('utf-8'))
+        v_r = int(bytes[pos: pos + FLOAT_LENGTH].decode('utf-8'))
         print('v_r: ', v_r)
         pos += FLOAT_LENGTH
-        direction = float(bytes[pos: pos + FLOAT_LENGTH].decode('utf-8'))
+        direction = int(bytes[pos: pos + FLOAT_LENGTH].decode('utf-8'))
         print('direction: ', direction)
         pos += FLOAT_LENGTH 
         image = bytes[pos:].decode()

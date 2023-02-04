@@ -10,6 +10,15 @@ class ImgData(object):
             self.message_id = x[0]
             self.img = x[1]
 
+    def __lt__(self, other):
+        if self.message_id < other.message_id:
+            return True
+        else:
+            return False
+        
+    def __str__(self):
+        return ('message_id: ' + str(self.message_id) + '\t' + 'img: ' + str(self.img) + '\n')
+
     '''
     :encode data to prepare for storing in the database
     :return: key and value(tuple)

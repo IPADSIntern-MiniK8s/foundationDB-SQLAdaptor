@@ -23,6 +23,7 @@ class Ops(Enum):
 class TokenParser(object):
     def __init__(self):
         self.stack = list()
+    
 
     '''
     :calculate the value according to expression tree

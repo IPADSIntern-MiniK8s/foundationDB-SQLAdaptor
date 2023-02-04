@@ -176,10 +176,8 @@ class FdbTool(object):
             result = dict()
             for k, v in raw_data:
                 key = self.dir[TABLE_INDEXS[table_name]].unpack(k)
-                print(key[0])
                 value = fdb.tuple.unpack(v)
                 result[key] = value
-                print(value[0])
             return result
 
 

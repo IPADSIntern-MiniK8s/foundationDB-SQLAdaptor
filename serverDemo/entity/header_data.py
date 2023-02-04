@@ -11,6 +11,16 @@ class HeaderData(object):
             self.time_stamp = x[1]
             self.car_id = x[2]
     
+    def __lt__(self, other):
+        if self.message_id < other.message_id:
+            return True
+        else:
+            return False
+    
+    def __str__(self):
+        return ('message_id: ' + 
+        str(self.message_id) + '\t' + 'time_stamp: ' + str(self.time_stamp) + '\t' + 
+        'car_id: ' + str(self.car_id) + '\n')
 
     '''
     :encode data to prepare for storing in the database
@@ -28,8 +38,8 @@ class HeaderData(object):
     '''
     def encode_index(self):
         # encode timestamp
-        time_key = self.time_stamp
-        time_value = (self.message_id,)
+        time_key = (self.time_stamp, self.message_id)
+        time_value = tuple()
         car_key = (self.car_id, self.message_id)
         car_value = tuple()
         return time_key, time_value, car_key, car_value

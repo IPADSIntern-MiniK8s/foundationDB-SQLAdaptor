@@ -16,6 +16,21 @@ class GeoData(object):
             self.direction = x[6]
 
 
+    def __lt__(self, other):
+        if self.message_id < other.message_id:
+            return True
+        else:
+            return False
+
+    def __str__(self):
+        return ('message_id: ' + str(self.message_id) + '\t' + 
+        'x: ' + str(self.x) + '\t' + 
+        'y: ' + str(self.y) + '\t' + 
+        'v_x: ' + str(self.v_x) + '\t' + 
+        'v_y: ' + str(self.v_y) + '\t' + 
+        'v_r: ' + str(self.v_r) + '\t' + 
+        'direction: ' + str(self.direction) + '\n')
+
     '''
     :encode data to prepare for storage in the database
     :return: key and value(tuple)

@@ -1,6 +1,4 @@
 import sys
-
-from serverDemo.entity import geo_data
 sys.path.append("..")
 
 from entity import GeoData
@@ -29,10 +27,7 @@ class GeoRepo(object):
     '''
     def check_column(self, key, value, column):
         geo_data = GeoData()
-        if column == None or GEO_COLUMNS[0] in column:
-            geo_data.message_id = key
-        else:
-            geo_data.message_id = None
+        geo_data.message_id = key
         if column == None or GEO_COLUMNS[1] in column:
             geo_data.x = value[0]
         else:
@@ -64,51 +59,53 @@ class GeoRepo(object):
     :find geometry data entry in database by message id
     :return: GeoData
     '''
-    def find_by_message_id(self, message_id):
+    def find_by_message_id(self, message_id, column):
         data = self.fdb_tool.query(self.fdb_tool.db, TABLE_NAME, message_id)
         geo_data = GeoData()
         if data == None or len(data) == 0:
             return geo_data
         
-        geo_data.message_id = message_id
-        geo_data.x = data[0]
-        geo_data.y = data[1]
-        geo_data.v_x = data[2]
-        geo_data.v_y = data[3]
-        geo_data.v_r = data[4]
-        geo_data.direction = data[5]
+        # geo_data.message_id = message_id
+        # geo_data.x = data[0]
+        # geo_data.y = data[1]
+        # geo_data.v_x = data[2]
+        # geo_data.v_y = data[3]
+        # geo_data.v_r = data[4]
+        # geo_data.direction = data[5]
+        geo_data = self.check_column(message_id, data, column)
         return geo_data
 
     '''
     : find a range of geometry data according to message id
     : return: list of GeoData
     '''
-    def find_by_message_id_range(self, lower_message_id=None, upper_message_id=None):
+    def find_by_message_id_range(self, column, lower_message_id=None, upper_message_id=None):
         result = list()
-        data = self.fdb_tool.query_range(self.fdb_tool.db, TABLE_NAME, lower_message_id, upper_message_id)
+        data = self.fdb_tool.query_range(self.fdb_tool.db, TABLE_NAME, (lower_message_id, ''), (upper_message_id, ''))
         
         if data == None or len(data) == 0:
             return result
 
         for key, value in data.items():
-            geo_data = GeoData()
-            geo_data.message_id = key[0]    
-            geo_data.x = value[0]
-            geo_data.y = value[1]
-            geo_data.v_x = value[2]
-            geo_data.v_y = value[3]
-            geo_data.v_r = value[4]
-            geo_data.direction = value[5]
+            # geo_data = GeoData()
+            # geo_data.message_id = key[0]    
+            # geo_data.x = value[0]
+            # geo_data.y = value[1]
+            # geo_data.v_x = value[2]
+            # geo_data.v_y = value[3]
+            # geo_data.v_r = value[4]
+            # geo_data.direction = value[5]
+            geo_data = self.check_column(key[0], value, column)
             result.append(geo_data)
 
         return result
 
     '''
     : find geometry data according to an attribute in a range (it doesn't have index now, can supply when need)
-    :NOTE: the interval left-closed and right-open
+    :NOTE: the interval left-open and right-close
     : return: list of GeoData
     '''
-    def find_by_unindex_attribute_range(self, attr, lower_val, upper_val):
+    def find_by_unindex_attribute_range(self, attr, column, lower_val, upper_val):
         result = list()
         index = 0
 
@@ -130,15 +127,16 @@ class GeoRepo(object):
             return result
         
         for key, value in data.items():
-            if (lower_val == None or (lower_val != None and value[index] >= lower_val)) and (upper_val == None or(value[index] < upper_val)):
-                geo_data = GeoData()
-                geo_data.message_id = key
-                geo_data.x = value[0]
-                geo_data.y = value[1]
-                geo_data.v_x = value[2]
-                geo_data.v_y = value[3]
-                geo_data.v_r = value[4]
-                geo_data.direction = value[5]
+            if (lower_val == None or (lower_val != None and value[index] > lower_val)) and (upper_val == None or(value[index] <= upper_val)):
+                # geo_data = GeoData()
+                # geo_data.message_id = key
+                # geo_data.x = value[0]
+                # geo_data.y = value[1]
+                # geo_data.v_x = value[2]
+                # geo_data.v_y = value[3]
+                # geo_data.v_r = value[4]
+                # geo_data.direction = value[5]
+                geo_data = self.check_column(key, value, column)
                 result.append(geo_data)
             
         return result

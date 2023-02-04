@@ -135,7 +135,7 @@ class ExecutionBuilder(object):
             elif self.query_type == 'DELETE':
                 plan = self.handle_delete()
             
-            print('execution plan: ', plan)
+            # print('execution plan: ', plan)
             result.append(plan)
         
         return result
