@@ -62,7 +62,9 @@ execution plan:  {'type': <QueryType.DELETE: 'DELETE'>, 'table_name': ['Websites
 * 查询一定时间范围内的数据：
 
 ### 可以支持的sql举例（已经通过测试了）：
-```
-sql:  Select * from header where message_id = 1;
-message_id: 1   time_stamp: 2277166961600969300 car_id: 1
-```
+* 具体参考`pysical_plan_test`
+* delete相关的sql只支持对于`header`的操作，同时删除`geometry`和`picture`中的内容，因为`header`,`geometry`,`picture`同时作为一条记录，单独删除其中一个是没有意义的
+
+### 目前的bug
+* 范围查找还有点小错
+* 查找结果为空时有`AttributeError`

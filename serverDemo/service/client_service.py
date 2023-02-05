@@ -1,3 +1,4 @@
+from enum import Flag
 import sys
 sys.path.append("..")
 
@@ -74,17 +75,34 @@ class ClientService(object):
 
 
     '''
-    :execute 'select' instruction
+    :check the updated value and its position for update sql, if not update, fill with False
+    :return: a list
+    '''
+    def check_update(self, COLUMNS, values):
+        updated = list()
+        for column in COLUMNS:
+            if column in values:
+                updated.append(values[column])
+            else:
+                updated.append(False)
+        return updated
+                
+
+    '''
+    :execute 'select' and 'delete' instruction
     :NOTE: not support `join`
+    :delete format: DELETE FROM table name WHERE column name = value
+                    DELETE FROM table name WHERE column name > value
+                    ...
     :return: a list of query result
     '''
-    def execute_select(self, plan):
+    def execute_select_delete(self, plan):
         if not plan or len(plan) == 0:
             return list()
         target_table = plan['table_name'][0]
-        columns = plan['columns']
-        if len(plan['columns']) == 1 and plan['columns'][0] == '*':  # need to pick all columns
-            columns = None
+        columns = None
+        if plan['type'] == 'SELECT' and not(len(plan['columns']) == 1 and plan['columns'][0]) == '*':  # need to pick all columns
+            columns = plan['columns']
         
         data_after_query = None
 
@@ -129,30 +147,35 @@ class ClientService(object):
             # for '='
             if op == Ops.EQ_OP.value and other_op == None:
                 other_val = val + 1
+
             # for ('<'/'<=', '>'/'>='), swap val and other_val
             if op == Ops.LE_OP.value or op == Ops.LT_OP.value or other_op == Ops.GE_OP.value or other_op == Ops.GT_OP.value:
                 val, other_val = other_val, val
                 op, other_op = other_op, op
 
-            # the left op must be '>'
-            if op == Ops.GE_OP.value:
-                val -= 1
-            # the right op must be '<='
-            if other_op == Ops.LT_OP.value:
-                other_val -= 1 
+            # the left op must be '>='
+            if op == Ops.GT_OP.value:
+                val += 1
+            # the right op must be '<'
+            if other_op == Ops.LE_OP.value:
+                other_val += 1 
 
             # FIXME: for timestamp range query bug
-            if other_op == Ops.LE_OP.value and other_attribute == 'time_stamp':
-                other_val += 1
+            # if other_op == Ops.LE_OP.value and other_attribute == 'time_stamp':
+            #     other_val += 1
             
             # NOTE: only a few cases with corresponding APIs are enumerated
             # TODO: maybe need to supply
             data = None
             if target_table == 'header':
-                if op == Ops.EQ_OP.value and attribute == 'message_id':
+                if op == Ops.EQ_OP.value and attribute == 'message_id' and plan['type'] == 'SELECT':
                     data = self.header_repo.find_by_message_id(val, columns)
-                elif attribute == 'message_id':
+                elif attribute == 'message_id' and plan['type'] == 'SELECT':
                     data = self.header_repo.find_by_message_id_range(columns, val, other_val)
+                elif op == Ops.EQ_OP.value and attribute == 'message_id' and plan['type'] == 'DELETE':
+                    data = self.header_repo.del_by_message_id(val)
+                elif attribute == 'message_id' and plan['type'] == 'DELETE':
+                    data = self.header_repo.del_by_message_id_range(val, other_val)
                 elif op == Ops.EQ_OP.value and attribute == 'time_stamp':
                     data = self.header_repo.find_by_timestamp(str(val), columns)
                 elif attribute == 'time_stamp':
@@ -240,13 +263,99 @@ class ClientService(object):
         return False
 
 
+    '''
+    :execute 'insert' instruction (which don't have `where` clause)
+    :format: "UPDATE table name SET column name=new value WHERE column name=value;"
+    :return: a list of updated entries
+    '''
+    def execute_update(self, plan):
+        # first find the entries that satisfy the `where` clause
+        search_plan = plan
+        search_plan['columns'] = ['*']
+        search_result = self.execute_select_delete(search_plan)
+        if not isinstance(search_result, list):
+            return list()
+        
+        target_table = plan['table_name'][0]
+        if target_table not in TABLE_NAMES:
+            return list()
+        
+        # no value to update
+        if 'values' not in plan:
+            return list()
+        values = plan['values']
+
+        result = list()
+        if target_table == 'header':
+            updated = self.check_update(HEADER_COLUMNS, values)
+            for entry in search_result:
+                if entry == None:
+                    continue
+                if updated[0] != False:
+                    entry.message_id = eval(updated[0])
+                if updated[1] != False:
+                    entry.time_stamp = updated[1]
+                if updated[2] != False:
+                    entry.car_id = eval(updated[2])
+                ret = self.header_repo.save(entry.message_id, entry.time_stamp, entry.car_id)
+                if not ret:
+                    result.append(False)
+                else:
+                    result.append(entry)
+            return result
+        elif target_table == 'geometry':
+            updated = self.check_update(GEO_COLUMNS, values)
+            for entry in search_result:
+                if entry == None:
+                    continue
+                if updated[0] != False:
+                    entry.message_id = eval(updated[0])
+                if updated[1] != False:
+                    entry.x = eval(updated[1])
+                if updated[2] != False:
+                    entry.y = eval(updated[2])
+                if updated[3] != False:
+                    entry.v_x = eval(updated[3])
+                if updated[4] != False:
+                    entry.v_y = eval(updated[4])
+                if updated[5] != False:
+                    entry.v_r = eval(updated[5])
+                if updated[6] != False:
+                    entry.direction = eval(updated[6])
+                ret = self.geo_repo.save(entry.message_id, entry.x, entry.y, entry.v_x, entry.v_y, entry.v_r, entry.direction)
+                if not ret:
+                    result.append(False)
+                else:
+                    result.append(entry)
+            return result
+        elif target_table == 'picture':
+            updated = self.check_update(IMG_COLUMNS, values)
+            for entry in search_result:
+                if entry == None:
+                    continue
+                if updated[0] != False:
+                    entry.message_id = eval(updated[0])
+                if updated[1] != False:
+                    entry.img = updated[1]
+                ret = self.img_repo.save(entry.message_id, entry.img)
+                if not ret:
+                    result.append(False)
+                else:
+                    result.append(entry)
+            return result
+        
+        return list()
+
+
     def query_by_sql(self, raw_sql):
         plans = self.execution_builder.generate_execution(raw_sql)
         result = list()
         for plan in plans:
-            if plan['type'] == 'SELECT':
-                result.extend(self.execute_select(plan))
+            if plan['type'] == 'SELECT' or plan['type'] == 'DELETE':
+                result.extend(self.execute_select_delete(plan))
             elif plan['type'] == 'INSERT':
                 result.append(self.execute_insert(plan))
+            elif plan['type'] == 'UPDATE':
+                result.extend(self.execute_update(plan))
 
         return result

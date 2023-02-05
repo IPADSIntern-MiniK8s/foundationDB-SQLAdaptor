@@ -63,15 +63,8 @@ class GeoRepo(object):
         data = self.fdb_tool.query(self.fdb_tool.db, TABLE_NAME, message_id)
         geo_data = GeoData()
         if data == None or len(data) == 0:
-            return geo_data
+            return None
         
-        # geo_data.message_id = message_id
-        # geo_data.x = data[0]
-        # geo_data.y = data[1]
-        # geo_data.v_x = data[2]
-        # geo_data.v_y = data[3]
-        # geo_data.v_r = data[4]
-        # geo_data.direction = data[5]
         geo_data = self.check_column(message_id, data, column)
         return geo_data
 
@@ -81,20 +74,17 @@ class GeoRepo(object):
     '''
     def find_by_message_id_range(self, column, lower_message_id=None, upper_message_id=None):
         result = list()
-        data = self.fdb_tool.query_range(self.fdb_tool.db, TABLE_NAME, (lower_message_id, ''), (upper_message_id, ''))
+        if lower_message_id != None:
+            lower_message_id = (lower_message_id,)
+        if upper_message_id != None:
+            upper_message_id = (upper_message_id,)
+
+        data = self.fdb_tool.query_range(self.fdb_tool.db, TABLE_NAME, lower_message_id, upper_message_id)
         
         if data == None or len(data) == 0:
             return result
 
         for key, value in data.items():
-            # geo_data = GeoData()
-            # geo_data.message_id = key[0]    
-            # geo_data.x = value[0]
-            # geo_data.y = value[1]
-            # geo_data.v_x = value[2]
-            # geo_data.v_y = value[3]
-            # geo_data.v_r = value[4]
-            # geo_data.direction = value[5]
             geo_data = self.check_column(key[0], value, column)
             result.append(geo_data)
 
@@ -125,17 +115,10 @@ class GeoRepo(object):
         data = self.fdb_tool.query_all(self.fdb_tool.db, TABLE_NAME)
         if data == None or len(data) == 0:
             return result
-        
+
         for key, value in data.items():
-            if (lower_val == None or (lower_val != None and value[index] > lower_val)) and (upper_val == None or(value[index] <= upper_val)):
-                # geo_data = GeoData()
-                # geo_data.message_id = key
-                # geo_data.x = value[0]
-                # geo_data.y = value[1]
-                # geo_data.v_x = value[2]
-                # geo_data.v_y = value[3]
-                # geo_data.v_r = value[4]
-                # geo_data.direction = value[5]
+            # FIXME: varify the bound
+            if (lower_val == None or (lower_val != None and value[index] >= lower_val)) and (upper_val == None or(value[index] < upper_val)):
                 geo_data = self.check_column(key, value, column)
                 result.append(geo_data)
             

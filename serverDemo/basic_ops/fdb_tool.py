@@ -58,7 +58,10 @@ class FdbTool(object):
         # first check the table name
         if table_name not in self.tables:
             return False
-        packed_key = self.dir[TABLE_INDEXS[table_name]].pack((key,))
+        if isinstance(key, tuple):
+            packed_key = self.dir[TABLE_INDEXS[table_name]].pack(key)
+        else:
+            packed_key = self.dir[TABLE_INDEXS[table_name]].pack((key,))
         # check whether the data exist
         if self.db[packed_key] == None:
             return True
@@ -68,7 +71,7 @@ class FdbTool(object):
     
     '''
     :update element in database
-    :return: success(true) or fail(false)
+    :return: success(True) or fail(False)
     '''
     @fdb.transactional
     def update(self, tr, table_name, key, value):
@@ -89,20 +92,24 @@ class FdbTool(object):
 
     '''
     :query data from database
-    :return: the data wanted or empty string
+    :return: the data wanted or None
     '''
     @fdb.transactional
     def query(self, tr, table_name, key):
         # first check the table name
         if table_name not in self.tables:
-            return ''
-        packed_key = self.dir[TABLE_INDEXS[table_name]].pack((key,))
+            print('check table name fail')
+            return None
+        if isinstance(key, tuple):
+            packed_key = self.dir[TABLE_INDEXS[table_name]].pack(key)
+        else:
+            packed_key = self.dir[TABLE_INDEXS[table_name]].pack((key,))
         # the return data can be different types
         # all value type is tuple
         val = self.db[packed_key]
 
         if self.db[packed_key] == None:
-            return ''
+            return None
         result = fdb.tuple.unpack(val)
         return result
 
@@ -181,3 +188,26 @@ class FdbTool(object):
             return result
 
 
+    '''
+    :delete a set of data satisfied the range
+    :param: upper bound and lower bound should be tuple
+    :NOTE: the interval left-closed and right-open
+    :return: Success(True) or fail(False)
+    '''
+    @fdb.transactional
+    def remove_range(self, tr, table_name, lower_bound=None, upper_bound=None):
+         # TODO: for the infinite bound, I am not sure
+        if table_name not in self.tables:
+            return False
+        else:
+            if upper_bound != None:
+                packed_upper_key = self.dir[TABLE_INDEXS[table_name]].pack(upper_bound)
+            else: 
+                packed_upper_key = self.dir[TABLE_INDEXS[table_name]].pack(('\xFF',))
+            if lower_bound != None:
+                packed_lower_key = self.dir[TABLE_INDEXS[table_name]].pack(lower_bound)
+            else:
+                packed_lower_key = self.dir[TABLE_INDEXS[table_name]].pack(('',))
+
+            del self.db[packed_lower_key:packed_upper_key]
+            return True

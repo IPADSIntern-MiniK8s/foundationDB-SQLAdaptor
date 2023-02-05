@@ -43,7 +43,7 @@ class ImgRepo(object):
         data = self.fdb_tool.query(self.fdb_tool.db, TABLE_NAME, message_id)
         img_data = ImgData()
         if data == None or len(data) == 0:
-            return img_data
+            return None
         
         # img_data.message_id = message_id
         # img_data.img = data[0]
@@ -56,7 +56,12 @@ class ImgRepo(object):
     '''
     def find_by_message_id_range(self, column, lower_message_id=None, upper_message_id=None):
         result = list()
-        data = self.fdb_tool.query_range(self.fdb_tool.db, TABLE_NAME, (lower_message_id, ''), (upper_message_id, ''))
+        if lower_message_id != None:
+            lower_message_id = (lower_message_id,)
+        if upper_message_id != None:
+            upper_message_id = (upper_message_id,)
+
+        data = self.fdb_tool.query_range(self.fdb_tool.db, TABLE_NAME, lower_message_id, upper_message_id)
         
         if data == None or len(data) == 0:
             return result
