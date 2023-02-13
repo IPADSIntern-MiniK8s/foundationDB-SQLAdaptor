@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "defaultSchema": "car_data",
+  "schemas": [
+    {
+      "type": "custom",
+      "name": "car_data",
+      "factory": "org.sjtu.se.ipads.fdbserver.adapter.FdbSchemaFactory",
+      "operand": {
+        "database": 0
+      },
+      "tables": [
+        {
+          "name": "TEST1",
+          "factory": "org.sjtu.se.ipads.fdbserver.adapter.FdbTableFactory",
+          "operand": {
+            "keyDelimiter": ",",
+            "fields": [
+              {
+                "name": "message_id",
+                "type": "varchar",
+                "mapping": 0
+              },
+              {
+                "name": "timestamp",
+                "type": "varchar",
+                "mapping": 1
+              }
+            ]
+          }
+        },
+        {
+          "name": "TEST2",
+          "factory": "org.sjtu.se.ipads.fdbserver.adapter.FdbTableFactory",
+          "operand": {
+            "keyDelimiter": ",",
+            "fields": [
+              {
+                "name": "message_id",
+                "type": "varchar",
+                "mapping": 0
+              },
+              {
+                "name": "timestamp",
+                "type": "varchar",
+                "mapping": 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
