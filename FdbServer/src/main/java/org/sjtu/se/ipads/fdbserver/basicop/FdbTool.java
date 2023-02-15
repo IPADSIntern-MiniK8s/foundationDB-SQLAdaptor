@@ -60,6 +60,28 @@ public class FdbTool {
             return result;
         });
     }
-    // TODO: get a range of data and delete a range of data
+
+    /**
+     * get the range of data from begin_key to end_key
+     * @note the begin key inclusive and the end key exclusive.
+     * @param db
+     * @param table_name
+     * @param begin_key
+     * @param end_key
+     * @return
+     */
+    public List<byte[]> queryRange(TransactionContext db, String table_name, String begin_key, String end_key) {
+        return db.run((Transaction tr) -> {
+            byte[] packed_begin_key = Tuple.from(table_name, begin_key).pack();
+            byte[] packed_end_key = Tuple.from(table_name, end_key).pack();
+            List<KeyValue> kvs = tr.getRange(packed_begin_key, packed_end_key).asList().join();
+            List<byte[]> result = new ArrayList<>();
+            for (KeyValue kv : kvs) {
+                result.add(kv.getValue());
+            }
+            return result;
+        });
+    }
+
 
 }

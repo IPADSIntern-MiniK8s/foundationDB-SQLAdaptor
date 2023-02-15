@@ -1,9 +1,8 @@
-package org.sjtu.se.ipads.fdbserver.adapter;
+package org.sjtu.se.ipads.fdbserver.sqlparser.adapter;
 
 import com.apple.foundationdb.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 

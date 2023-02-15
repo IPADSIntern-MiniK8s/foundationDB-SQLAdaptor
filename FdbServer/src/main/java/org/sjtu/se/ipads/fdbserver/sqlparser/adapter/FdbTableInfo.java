@@ -1,4 +1,4 @@
-package org.sjtu.se.ipads.fdbserver.adapter;
+package org.sjtu.se.ipads.fdbserver.sqlparser.adapter;
 
 import java.util.LinkedHashMap;
 import java.util.List;

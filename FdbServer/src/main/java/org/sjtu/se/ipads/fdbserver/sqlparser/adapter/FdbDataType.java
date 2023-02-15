@@ -1,4 +1,4 @@
-package org.sjtu.se.ipads.fdbserver.adapter;
+package org.sjtu.se.ipads.fdbserver.sqlparser.adapter;
 
 /**
  * All available data type for Fdb.

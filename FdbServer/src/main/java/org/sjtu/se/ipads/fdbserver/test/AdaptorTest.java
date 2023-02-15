@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.sjtu.se.ipads.fdbserver.adapter.CalciteUtil;
+import org.sjtu.se.ipads.fdbserver.sqlparser.adapter.CalciteUtil;
 import org.sjtu.se.ipads.fdbserver.basicop.FdbTool;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

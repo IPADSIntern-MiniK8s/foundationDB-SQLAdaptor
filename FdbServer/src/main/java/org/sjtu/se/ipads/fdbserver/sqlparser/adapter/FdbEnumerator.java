@@ -1,4 +1,4 @@
-package org.sjtu.se.ipads.fdbserver.adapter;
+package org.sjtu.se.ipads.fdbserver.sqlparser.adapter;
 
 import org.apache.calcite.linq4j.Enumerator;
 import org.apache.calcite.linq4j.Linq4j;
