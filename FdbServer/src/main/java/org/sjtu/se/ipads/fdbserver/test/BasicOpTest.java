@@ -27,33 +27,38 @@ public class BasicOpTest {
             return null;
         });
         for (long i = 0; i < 10; ++i) {
-            byte[] key = Tuple.from(table_name,  Long.toString(i)).pack();
-            fdbTool.add(db, key, Tuple.from(Long.toString(i)).pack());
+            byte[] key = Tuple.from(table_name, i).pack();
+            fdbTool.add(db, key, Tuple.from(i).pack());
+        }
+
+        for (long i = 10; i < 20; ++i) {
+            byte[] key = Tuple.from(table_name, i, i - 10).pack();
+            fdbTool.add(db, key, Tuple.from(i - 10).pack());
         }
 
         // test query
         System.out.println("test query");
         for (long i = 0; i < 10; ++i) {
-            byte[] key = Tuple.from(table_name, Long.toString(i)).pack();
+            byte[] key = Tuple.from(table_name, i).pack();
             byte[] result = fdbTool.query(db, key);
-            System.out.println(Tuple.fromBytes(result).getString(0));
+            System.out.println(Tuple.fromBytes(result).getLong(0));
         }
 
         // test delete
         System.out.println("test delete");
         for (long i = 0; i < 10; i += 2) {
-            byte[] key = Tuple.from(table_name, Long.toString(i)).pack();
+            byte[] key = Tuple.from(table_name, i).pack();
             fdbTool.remove(db, key);
         }
 
         for (long i = 0; i < 10; ++i) {
-            byte[] key = Tuple.from(table_name, Long.toString(i)).pack();
+            byte[] key = Tuple.from(table_name, i).pack();
             byte[] result = fdbTool.query(db, key);
             if (result == null) {
                 System.out.println("key " + i + " is empty ");
                 continue;
             }
-            System.out.println(Tuple.fromBytes(result).getString(0));
+            System.out.println(Tuple.fromBytes(result).getLong(0));
         }
 
         // test query all
@@ -61,10 +66,17 @@ public class BasicOpTest {
         List<byte[]> result = fdbTool.queryAll(db, table_name);
         System.out.print("the result size: " + result.size() + "\n");
         for (byte[] elem : result) {
-            System.out.println(Tuple.fromBytes(elem).getString(0));
+            System.out.println(Tuple.fromBytes(elem).getLong(0));
+        }
+
+        // test query range
+        System.out.println("test query range");
+        result = fdbTool.queryRange(db, table_name, 10, 15);
+        System.out.print("the result size: " + result.size() + "\n");
+        for (byte[] elem : result) {
+            System.out.println(Tuple.fromBytes(elem).getLong(0));
         }
 
         System.out.println("finish test");
-
     }
 }

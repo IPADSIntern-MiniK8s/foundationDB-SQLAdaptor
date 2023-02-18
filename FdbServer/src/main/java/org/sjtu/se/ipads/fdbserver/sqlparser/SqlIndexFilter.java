@@ -12,6 +12,7 @@ import org.sjtu.se.ipads.fdbserver.sqlparser.planner.CalcitePlanner;
 import org.sjtu.se.ipads.fdbserver.utils.index.IndexManager;
 import org.sjtu.se.ipads.fdbserver.utils.index.MetaDataManager;
 
+import java.math.BigInteger;
 import java.util.*;
 
 public class SqlIndexFilter {
@@ -27,11 +28,9 @@ public class SqlIndexFilter {
     private List<Map.Entry<String, String>> conditionMap;
 
 
-    SqlIndexFilter(IndexManager indexManager, MetaDataManager metaDataManager) {
+    public SqlIndexFilter(IndexManager indexManager, MetaDataManager metaDataManager) {
         this.indexmanager = indexManager;
         this.metaDataManager = metaDataManager;
-        FrameworkConfig config = CalciteFramework.getDefaultConfig();
-        this.planner = CalcitePlanner.getPlannerFromFrameworkConfig(config);
         selects = new ArrayList<>();
         operators = new ArrayList<>();
         conditionMap = new ArrayList<>();
@@ -81,6 +80,9 @@ public class SqlIndexFilter {
      */
     public boolean preExecution(String sql) throws SqlParseException {
         initVariable();
+        FrameworkConfig config = CalciteFramework.getDefaultConfig();
+        Planner planner = CalcitePlanner.getPlannerFromFrameworkConfig(config);
+        sqlnode = planner.parse(sql);
         if (!(sqlnode instanceof SqlSelect)) {
             return false;
         }
@@ -88,7 +90,7 @@ public class SqlIndexFilter {
         SqlSelect sqlSelect = (SqlSelect) sqlnode;
 
         // if too complex, escape
-        if (sqlSelect.getGroup() != null || sqlSelect.getFetch() != null || sqlSelect.getHaving() != null || sqlSelect.getWindowList() != null) {
+        if (sqlSelect.getGroup() != null || sqlSelect.getFetch() != null || sqlSelect.getHaving() != null) {
             return false;
         }
 
@@ -131,9 +133,9 @@ public class SqlIndexFilter {
                     int isIndexLeft = indexmanager.hasIndex(from, conditionMap.get(0).getKey());
                     int isIndexRight = indexmanager.hasIndex(from, conditionMap.get(1).getKey());
 
-                    if (operator.getKind().equals(SqlKind.AND) && isIndexLeft != -1) {
+                    if (operator.getKind().equals(SqlKind.AND) && isIndexLeft == -1) {
                         return false;
-                    } else if (operator.getKind().equals(SqlKind.OR) && (isIndexLeft != -1 || isIndexRight != -1)) {
+                    } else if (operator.getKind().equals(SqlKind.OR) && (isIndexLeft == -1 || isIndexRight == -1)) {
                         return false;
                     }
 
@@ -171,27 +173,33 @@ public class SqlIndexFilter {
      */
     private List<String> getBound(int i) {
         String leftBound = "", rightBound = "";
-        int rawValue = Integer.parseInt(conditionMap.get(i).getValue());
+        String modifiedBound = "", prevBound = conditionMap.get(i).getValue();
+        try {
+            BigInteger rawValue = new BigInteger(prevBound);
+            modifiedBound = String.valueOf(rawValue.add(new BigInteger("1")));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
         switch (operators.get(0)) {
             case EQUALS:
-                leftBound = String.valueOf(rawValue);
-                rightBound = String.valueOf(rawValue + 1);
+                leftBound = prevBound;
+                rightBound = modifiedBound;
                 break;
             case GREATER_THAN:
-                leftBound = String.valueOf(rawValue - 1);
+                leftBound = modifiedBound;
                 rightBound = "XXX";
                 break;
             case GREATER_THAN_OR_EQUAL:
-                leftBound = String.valueOf(rawValue);
+                leftBound = prevBound;
                 rightBound = "XXX";
                 break;
             case LESS_THAN:
                 leftBound = "";
-                rightBound = String.valueOf(rawValue);
+                rightBound = prevBound;
                 break;
             case LESS_THAN_OR_EQUAL:
                 leftBound = "";
-                rightBound = String.valueOf(rawValue + 1);
+                rightBound = modifiedBound;
             default:
                 break;
         }
@@ -199,10 +207,10 @@ public class SqlIndexFilter {
     }
 
 
-    private Set<String> getPrimaryKeys(List<byte[]> rawData) {
-        Set<String> result = new HashSet<>();
+    private Set<Integer> getPrimaryKeys(List<byte[]> rawData) {
+        Set<Integer> result = new HashSet<>();
         for (byte[] elem : rawData) {
-            result.add(Tuple.fromBytes(elem).getString(0));
+            result.add((int)Tuple.fromBytes(elem).getLong(0));
         }
         return result;
     }
@@ -215,13 +223,24 @@ public class SqlIndexFilter {
      */
     private Map<String, Object> decodeEntry(byte[] rawData) {
         List<String> entryNames = metaDataManager.getEntryNames(from);
+        Tuple tuple = Tuple.fromBytes(rawData);
         int size = Tuple.fromBytes(rawData).size();
+
+        // the first element in tuple is tableName
         if (entryNames.size() != size) {
             return null;
         }
         Map<String, Object> result = new HashMap<>();
-        for (int i = 0; i < size; ++i) {
-            result.put(entryNames.get(i), Tuple.fromBytes(rawData).get(i));
+        if (selects.size() == 1 && selects.get(0).equals("*")) {
+            for (int i = 0; i < size; ++i) {
+                result.put(entryNames.get(i), Tuple.fromBytes(rawData).get(i));
+            }
+        } else {
+            for (int i = 0; i < size; ++i) {
+                if (selects.contains(entryNames.get(i))) {
+                    result.put(entryNames.get(i), Tuple.fromBytes(rawData).get(i));
+                }
+            }
         }
         return result;
     }
@@ -264,8 +283,29 @@ public class SqlIndexFilter {
         return result;
     }
 
+    private List<byte[]> queryRangeHelper(Database db, FdbTool fdbTool, String indexTableName, String leftBound, String rightBound) {
+        List<byte[]> indexQueryResult;
+        if (metaDataManager.getType(from, conditionMap.get(0).getKey()).equals("int")) {
+            int leftVal = 0, rightVal = 0;
+            if (leftBound.equals("")) {
+                leftVal = 0x00;
+            } else {
+                leftVal = Integer.parseInt(leftBound);
+            }
+            if (rightBound.equals("XXX")) {
+                rightVal = 0xFF;
+            } else {
+                rightVal = Integer.parseInt(rightBound);
+            }
+            indexQueryResult = fdbTool.queryRange(db, indexTableName, leftVal, rightVal);
+        } else {
+            indexQueryResult = fdbTool.queryRange(db, indexTableName, leftBound, rightBound);
+        }
+        return indexQueryResult;
+    }
 
-    List<Map<String, Object>> getQueryResult(Database db, FdbTool fdbTool) {
+
+    public List<Map<String, Object>> getQueryResult(Database db, FdbTool fdbTool) {
         // first select the index table
 
         // check the first condition
@@ -276,8 +316,11 @@ public class SqlIndexFilter {
         // get the index table
         int indexTableNumber = indexmanager.hasIndex(from, conditionMap.get(0).getKey());
         String indexTableName = "i_" + String.valueOf(indexTableNumber);
+
         // get the first condition filtered primary key
-        List<byte[]> indexFirstQuery = fdbTool.queryRange(db, indexTableName, leftBound, rightBound);
+        List<byte[]> indexFirstQuery = queryRangeHelper(db, fdbTool, indexTableName, leftBound, rightBound);
+
+
         List<byte[]> indexSecondQuery = new ArrayList<>();
         boolean secondIndexed = true;
 
@@ -286,17 +329,17 @@ public class SqlIndexFilter {
             ret = getBound(1);
             leftBound = ret.get(0);
             rightBound = ret.get(1);
-            indexTableNumber = indexmanager.hasIndex(from, conditionMap.get(0).getKey());
+            indexTableNumber = indexmanager.hasIndex(from, conditionMap.get(1).getKey());
             if (indexTableNumber != -1) {
                 indexTableName = "i_" + String.valueOf(indexTableNumber);
-                indexSecondQuery = fdbTool.queryRange(db, indexTableName, leftBound, rightBound);
+                indexSecondQuery = queryRangeHelper(db, fdbTool, indexTableName, leftBound, rightBound);
             } else {
                 secondIndexed = false;
             }
         }
 
         // merge all eligible entries and get the primary key
-        Set<String> primaryKeys = getPrimaryKeys(indexFirstQuery);
+        Set<Integer> primaryKeys = getPrimaryKeys(indexFirstQuery);
         if (!indexSecondQuery.isEmpty()) {
             if (operators.get(2).equals(SqlKind.AND)) {
                 primaryKeys.retainAll(getPrimaryKeys(indexSecondQuery));
@@ -307,7 +350,7 @@ public class SqlIndexFilter {
 
 
         List<Map<String, Object>> result = new ArrayList<>();
-        for (String key : primaryKeys) {
+        for (Integer key : primaryKeys) {
             result.add(decodeEntry(fdbTool.query(db, Tuple.from(from, key).pack())));
         }
 

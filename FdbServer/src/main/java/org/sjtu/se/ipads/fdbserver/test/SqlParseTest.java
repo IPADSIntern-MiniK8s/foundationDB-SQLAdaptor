@@ -15,7 +15,9 @@ public class SqlParseTest {
         FrameworkConfig config = CalciteFramework.getDefaultConfig();
         Planner planner = CalcitePlanner.getPlannerFromFrameworkConfig(config);
 //        SqlNode sqlNode = planner.parse("select deptno, count(1) from emp where SAL between 1000 and 2000 group by deptno");
-        SqlNode sqlNode = planner.parse("Select name1, name2 from emp where sal > 2000 AND sal < (3000 - (3.0 * 5))");
+//        SqlNode sqlNode = planner.parse("Select name1, name2 from emp where sal > 2000 AND sal < (3000 - (3.0 * 5))");
+
+        SqlNode sqlNode = planner.parse("Select * from HEADER where CAR_ID > 1 and MESSAGE_ID < 10");
         CalciteSqlSelect.printInfo(sqlNode);
     }
 }

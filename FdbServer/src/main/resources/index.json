@@ -8,13 +8,13 @@
     },
     {
       "table_name": "HEADER",
-      "name": "TIMESTAMP",
+      "name": "TIME_STAMP",
       "type": "varchar",
       "attribute": "multi"
     },
     {
       "table_name": "GEOMETRY",
-      "name": "x",
+      "name": "X",
       "type": "varchar",
       "attribute": "multi"
     }

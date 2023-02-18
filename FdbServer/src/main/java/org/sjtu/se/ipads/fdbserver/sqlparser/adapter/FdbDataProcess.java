@@ -35,10 +35,16 @@ public class FdbDataProcess {
         List<byte[]> query_result = fdbTool.queryAll(db, tableName);
         List<Object[]> data = new ArrayList<>();
         for (byte[] elem : query_result) {
-            List<String> entry = new ArrayList<>();
+            List<Object> entry = new ArrayList<>();
             int size = Tuple.fromBytes(elem).size();
             for (int i = 0; i < size; ++i) {
-                entry.add(Tuple.fromBytes(elem).getString(i));
+                System.out.println(fields.get(i).get("type").toString());
+                if (fields.get(i).get("type").toString().equals("int")) {
+                    entry.add(Tuple.fromBytes(elem).getLong(i));
+                } else {
+                    entry.add(Tuple.fromBytes(elem).getString(i));
+                }
+
             }
             System.out.println("the entry: ");
             System.out.println(entry);

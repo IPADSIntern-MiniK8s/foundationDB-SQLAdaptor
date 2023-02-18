@@ -21,15 +21,23 @@ public class FdbTool {
     }
 
     /**
+     * insert into the dataset in a bigger transaction
+     * @param tr
+     * @param key
+     * @param val
+     */
+    public void add(Transaction tr, byte[] key, byte[] val) {
+        tr.set(key, val);
+    }
+
+    /**
      * query the value for the key
      * @param db
      * @param key
      * @return
      */
     public byte[] query(TransactionContext db, final byte[] key) {
-        return db.run((Transaction tr) -> {
-            return tr.get(key).join();
-        });
+        return db.run((Transaction tr) -> tr.get(key).join());
     }
 
     /**
@@ -63,7 +71,7 @@ public class FdbTool {
 
     /**
      * get the range of data from begin_key to end_key
-     * @note the begin key inclusive and the end key exclusive.
+     * @note the begin key exclusive and the end key inclusive.
      * @param db
      * @param table_name
      * @param begin_key
@@ -83,5 +91,18 @@ public class FdbTool {
         });
     }
 
+
+    public List<byte[]> queryRange(TransactionContext db, String table_name, int begin_key, int end_key) {
+        return db.run((Transaction tr) -> {
+            byte[] packed_begin_key = Tuple.from(table_name, begin_key).pack();
+            byte[] packed_end_key = Tuple.from(table_name, end_key).pack();
+            List<KeyValue> kvs = tr.getRange(packed_begin_key, packed_end_key).asList().join();
+            List<byte[]> result = new ArrayList<>();
+            for (KeyValue kv : kvs) {
+                result.add(kv.getValue());
+            }
+            return result;
+        });
+    }
 
 }

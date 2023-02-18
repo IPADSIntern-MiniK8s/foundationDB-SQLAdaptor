@@ -1,47 +1,96 @@
 {
   "version": "1.0",
-  "defaultSchema": "car_data",
+  "defaultSchema": "CAR_DATA",
   "schemas": [
     {
       "type": "custom",
-      "name": "car_data",
-      "factory": "org.sjtu.se.ipads.fdbserver.adapter.FdbSchemaFactory",
+      "name": "CAR_DATA",
+      "factory": "org.sjtu.se.ipads.fdbserver.sqlparser.adapter.FdbSchemaFactory",
       "operand": {
         "database": 0
       },
       "tables": [
         {
-          "name": "TEST1",
-          "factory": "org.sjtu.se.ipads.fdbserver.adapter.FdbTableFactory",
+          "name": "HEADER",
+          "factory": "org.sjtu.se.ipads.fdbserver.sqlparser.adapter.FdbTableFactory",
           "operand": {
             "keyDelimiter": ",",
             "fields": [
               {
                 "name": "MESSAGE_ID",
-                "type": "varchar",
+                "type": "int",
                 "mapping": 0
               },
               {
-                "name": "TIMESTAMP",
+                "name": "TIME_STAMP",
                 "type": "varchar",
                 "mapping": 1
+              },
+              {
+                "name": "CAR_ID",
+                "type": "int",
+                "mapping": 2
               }
             ]
           }
         },
         {
-          "name": "TEST2",
-          "factory": "org.sjtu.se.ipads.fdbserver.adapter.FdbTableFactory",
+          "name": "GEOMETRY",
+          "factory": "org.sjtu.se.ipads.fdbserver.sqlparser.adapter.FdbTableFactory",
           "operand": {
             "keyDelimiter": ",",
             "fields": [
               {
                 "name": "MESSAGE_ID",
-                "type": "varchar",
+                "type": "int",
                 "mapping": 0
               },
               {
-                "name": "TIMESTAMP",
+                "name": "X",
+                "type": "int",
+                "mapping": 1
+              },
+              {
+                "name": "Y",
+                "type": "int",
+                "mapping": 2
+              },
+              {
+                "name": "V_X",
+                "type": "int",
+                "mapping": 3
+              },
+              {
+                "name": "V_Y",
+                "type": "int",
+                "mapping": 4
+              },
+              {
+                "name": "V_R",
+                "type": "int",
+                "mapping": 5
+              },
+              {
+                "name": "DIRECTION",
+                "type": "int",
+                "mapping": 6
+              }
+            ]
+          }
+        },
+        {
+          "name": "IMAGE",
+          "factory": "org.sjtu.se.ipads.fdbserver.sqlparser.adapter.FdbTableFactory",
+          "operand": {
+            "keyDelimiter": ",",
+            "fields": [
+              {
+                "name": "MESSAGE_ID",
+                "type": "int",
+                "mapping": 0
+              },
+              {
+                "name": "IMG",
                 "type": "varchar",
                 "mapping": 1
               }
