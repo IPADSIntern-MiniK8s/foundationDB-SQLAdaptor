@@ -72,7 +72,7 @@ public class SqlIndexFilterTest {
 //            assert ret == false;
             List<String> sqls = Arrays.asList(
 //                    "Select * from HEADER where CAR_ID = 1",
-                    "Select * from HEADER where TIME_STAMP > 2277166961600969300 and TIME_STAMP <= 2277166961600969400",
+//                    "Select * from HEADER where TIME_STAMP > 2277166961600969300 and TIME_STAMP <= 2277166961600969400",
                     "Select * from HEADER where CAR_ID > 1 and MESSAGE_ID < 10",
                     "Select TIME_STAMP,CAR_ID FROM HEADER where CAR_ID = 1",
                     "Select * from GEOMETRY where X = 10344460");

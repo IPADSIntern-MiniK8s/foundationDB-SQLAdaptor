@@ -16,15 +16,29 @@ public class FdbSchema extends AbstractSchema {
     public final List<Map<String, Object>> tables;
     private Map<String, Table> tableMap = null;
     public final int database;
+    private String flavorName;
 
     public FdbSchema(int database,
-                     List<Map<String, Object>> tables) {
+                     List<Map<String, Object>> tables, String flavorName) {
         this.database = database;
         this.tables = tables;
+        this.flavorName = flavorName;
     }
 
     private Table table(String tableName) {
-        return FdbTable.create(FdbSchema.this, tableName,null);
+        if (Objects.equals(flavorName, "scannable")) {
+            return FdbTable.create(FdbSchema.this, tableName,null);
+        } else {
+            Map<String, Object> allFields = null;
+            for (int i = 0; i < this.tables.size(); i++) {
+                JsonCustomTable jsonCustomTable = (JsonCustomTable) this.tables.get(i);
+                if (jsonCustomTable.name.equals(tableName)) {
+                    allFields = this.tables.get(i);
+                    break;
+                }
+            }
+            return new FdbStreamTable(FdbSchema.this, tableName, null, allFields);
+        }
     }
 
     @Override

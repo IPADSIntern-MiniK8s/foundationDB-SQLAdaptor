@@ -180,7 +180,7 @@ public class SqlIndexFilter {
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
-        switch (operators.get(0)) {
+        switch (operators.get(i)) {
             case EQUALS:
                 leftBound = prevBound;
                 rightBound = modifiedBound;

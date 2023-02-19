@@ -1,4 +1,6 @@
 package org.sjtu.se.ipads.fdbserver.sqlparser.adapter;
+import java.sql.Timestamp;
+
 
 /**
  * All available data type for Fdb.
@@ -13,11 +15,11 @@ public enum FdbDataType {
     STRING("string"),
 
     INT("int"),
-
     /**
      * Lists are simply lists of strings, sorted by insertion order.
      */
     LIST("list");
+
 
 
     private final String typeName;

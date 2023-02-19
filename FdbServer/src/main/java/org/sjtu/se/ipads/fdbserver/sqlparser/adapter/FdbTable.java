@@ -2,6 +2,7 @@ package org.sjtu.se.ipads.fdbserver.sqlparser.adapter;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.calcite.DataContext;
+import org.apache.calcite.adapter.java.JavaTypeFactory;
 import org.apache.calcite.linq4j.AbstractEnumerable;
 import org.apache.calcite.linq4j.Enumerable;
 import org.apache.calcite.linq4j.Enumerator;
@@ -24,7 +25,7 @@ public class FdbTable extends AbstractTable implements ScannableTable {
     final ImmutableMap<String, Object> allFields;
     static FdbEnumerator fdbEnumerator;
 
-    public FdbTable(FdbSchema  schema,
+    public FdbTable(FdbSchema schema,
                      String tableName,
                      RelProtoDataType protoRowType,
                      Map<String, Object> allFields) {
@@ -49,6 +50,20 @@ public class FdbTable extends AbstractTable implements ScannableTable {
             types.add(type);
         }
         return typeFactory.createStructType(Pair.zip(names, types));
+    }
+
+
+    public List<RelDataType> getFieldTypes(RelDataTypeFactory typeFactory) {
+        if (protoRowType != null) {
+            return (List<RelDataType>) protoRowType.apply(typeFactory);
+        }
+        final List<RelDataType> types = new ArrayList<RelDataType>(allFields.size());
+
+        for (Object key : allFields.keySet()) {
+            final RelDataType type = typeFactory.createJavaType(allFields.get(key).getClass());
+            types.add(type);
+        }
+        return types;
     }
 
     static Table create(

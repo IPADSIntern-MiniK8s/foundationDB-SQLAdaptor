@@ -1,6 +1,7 @@
 package org.sjtu.se.ipads.fdbserver.utils.counter;
 
 import com.apple.foundationdb.Database;
+import com.apple.foundationdb.FDB;
 import com.apple.foundationdb.tuple.Tuple;
 import org.sjtu.se.ipads.fdbserver.basicop.FdbTool;
 
@@ -21,7 +22,26 @@ public class Counter {
         if (size < 1) {
             counter = 1;
         } else {
-            counter = Integer.parseInt(Tuple.fromBytes(result.get(size - 1)).getString(0));
+            counter = (int) Tuple.fromBytes(result.get(size - 1)).getLong(0);
+        }
+        l.unlock();
+    }
+
+    public Counter() {
+        FDB fdb = FDB.selectAPIVersion(710);
+        Database db = fdb.open();
+        db.options().setTransactionTimeout(60000);  // 60,000 ms = 1 minute
+        db.options().setTransactionRetryLimit(100);
+        FdbTool fdbTool = new FdbTool();
+        String table_name = "HEADER";
+        l.lock();
+        List<byte[]> result = fdbTool.queryAll(db, table_name);
+        // the database is empty
+        int size = result.size();
+        if (size < 1) {
+            counter = 1;
+        } else {
+            counter = (int) Tuple.fromBytes(result.get(size - 1)).getLong(0);
         }
         l.unlock();
     }

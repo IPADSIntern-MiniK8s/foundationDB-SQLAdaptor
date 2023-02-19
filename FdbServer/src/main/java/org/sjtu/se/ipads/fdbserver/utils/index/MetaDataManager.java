@@ -33,6 +33,9 @@ public class MetaDataManager {
             for (int j = 0; j < tableSize; ++j) {
                 JSONObject table = (JSONObject) tables.get(j);
                 JSONObject operand = table.getJSONObject("operand");
+                if (operand == null) {
+                    break;
+                }
                 JSONArray fields = operand.getJSONArray("fields");
                 int fieldSize = fields.size();
                 List<String> entries = new ArrayList<>();

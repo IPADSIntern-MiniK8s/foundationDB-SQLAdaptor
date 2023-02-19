@@ -19,7 +19,8 @@ public class FdbSchemaFactory implements SchemaFactory {
     @Override public Schema create(SchemaPlus schema, String name, Map<String, Object> operand) {
         List<Map<String, Object>> tables = (List) operand.get("tables");
         int database = Integer.parseInt(operand.get("database").toString());
-        return new FdbSchema(database, tables);
+        String flavorName = (String) operand.get("flavor");
+        return new FdbSchema(database, tables, flavorName);
     }
 
 }

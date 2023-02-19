@@ -31,7 +31,8 @@
                 "type": "int",
                 "mapping": 2
               }
-            ]
+            ],
+            "flavor": "scannable"
           }
         },
         {
@@ -75,7 +76,8 @@
                 "type": "int",
                 "mapping": 6
               }
-            ]
+            ],
+            "flavor": "scannable"
           }
         },
         {
@@ -94,8 +96,24 @@
                 "type": "varchar",
                 "mapping": 1
               }
-            ]
+            ],
+            "flavor": "scannable"
           }
+        },
+        {
+          "name": "CAR_1_INFO",
+          "type": "view",
+          "sql": "SELECT * FROM HEADER WHERE CAR_ID = 1"
+        },
+        {
+          "name": "CAR_2_INFO",
+          "type": "view",
+          "sql": "SELECT * FROM HEADER WHERE CAR_ID = 2"
+        },
+        {
+          "name": "CAR_3_INFO",
+          "type": "view",
+          "sql": "SELECT * FROM HEADER WHERE CAR_ID = 3"
         }
       ]
     }

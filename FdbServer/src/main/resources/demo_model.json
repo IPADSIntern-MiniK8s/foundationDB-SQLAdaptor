@@ -26,7 +26,8 @@
                 "type": "varchar",
                 "mapping": 1
               }
-            ]
+            ],
+            "flavor": "stream"
           }
         },
         {
@@ -45,7 +46,8 @@
                 "type": "varchar",
                 "mapping": 1
               }
-            ]
+            ],
+            "flavor": "stream"
           }
         }
       ]
