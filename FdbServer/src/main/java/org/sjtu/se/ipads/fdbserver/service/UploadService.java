@@ -3,17 +3,18 @@ package org.sjtu.se.ipads.fdbserver.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.apple.foundationdb.Database;
+import com.apple.foundationdb.FDB;
 import com.apple.foundationdb.FDBException;
 import com.apple.foundationdb.Transaction;
 import com.apple.foundationdb.tuple.Tuple;
 import org.apache.calcite.util.Sources;
 import org.sjtu.se.ipads.fdbserver.basicop.FdbTool;
 import org.sjtu.se.ipads.fdbserver.test.DemoAdaptorTest;
-import org.sjtu.se.ipads.fdbserver.utils.counter.Counter;
 import org.sjtu.se.ipads.fdbserver.utils.index.IndexManager;
 import org.sjtu.se.ipads.fdbserver.utils.index.MetaDataManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -22,7 +23,8 @@ public class UploadService {
     private IndexManager indexManager;
     private MetaDataManager metaDataManager;
     private FdbTool fdbTool;
-    private static int TIMESTAMP_LENGTH = 19;
+    private Database db;
+    private static int TIMESTAMP_LENGTH = 13;
     private static int FLOAT_LENGTH = 8;
     private static int INT_LENGTH = 4;
 
@@ -36,6 +38,12 @@ public class UploadService {
             System.out.println("metaDataPath: " + metaDataPath);
             indexManager = new IndexManager(indexPath);
             metaDataManager = new MetaDataManager(metaDataPath);
+
+            FDB fdb = FDB.selectAPIVersion(710);
+            db = fdb.open();
+            db.options().setTransactionTimeout(60000);  // 60,000 ms = 1 minute
+            db.options().setTransactionRetryLimit(100);
+
             fdbTool = new FdbTool();
         } catch (IOException e) {
             e.printStackTrace();
@@ -52,6 +60,12 @@ public class UploadService {
                     .file().getAbsolutePath();
             indexManager = new IndexManager(indexPath);
             metaDataManager = new MetaDataManager(metaDataPath);
+
+            FDB fdb = FDB.selectAPIVersion(710);
+            db = fdb.open();
+            db.options().setTransactionTimeout(60000);  // 60,000 ms = 1 minute
+            db.options().setTransactionRetryLimit(100);
+
             fdbTool = new FdbTool();
         } catch (IOException e) {
             e.printStackTrace();
@@ -60,7 +74,7 @@ public class UploadService {
     }
 
 
-    public boolean save(Database db, JSONObject data, int message_id) {
+    public boolean save(JSONObject data, int message_id) {
         List<String> tables = metaDataManager.getTables();
         List<Map.Entry<String, Tuple>> toSave = new ArrayList<>();
         List<Map.Entry<String, Tuple>> toIndex = new ArrayList<>();

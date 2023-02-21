@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package org.sjtu.se.ipads.fdbserver.tsdb.dataprocessor;
+
+// filePath
+option java_package = "org.sjtu.se.ipads.fdbserver.tsdb.dataprocessor";
+
+// fileName
+option java_outer_classname="FieldProto";
+
+
+
+
+message FieldList {
+  repeated Field fieldList = 1;
+}
+
+message Field {
+  uint32 delta = 1;
+  uint32 fieldValue = 2;
+}
+

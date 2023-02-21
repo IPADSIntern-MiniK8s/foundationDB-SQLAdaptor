@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.apple.foundationdb.Database;
 import com.apple.foundationdb.FDB;
-import com.apple.foundationdb.Transaction;
 import com.apple.foundationdb.subspace.Subspace;
 import com.apple.foundationdb.tuple.Tuple;
 import org.apache.calcite.util.Sources;
@@ -15,7 +14,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +45,7 @@ public class UploadServiceTest {
         String content = FileUtils.readFileToString(file);
         JSONObject jsonObject = JSON.parseObject(content);
 
-        boolean ret = uploadService.save(db, jsonObject, 1);
+        boolean ret = uploadService.save(jsonObject, 1);
         assert ret == true;
 
         // test save result by querying

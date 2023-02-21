@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package org.sjtu.se.ipads.fdbserver.dataprocessor;
+
+// filePath
+option java_package = "org.sjtu.se.ipads.fdbserver.dataprocessor";
+
+// fileName
+option java_outer_classname="CarDataProto";
+
+message CarData {
+  uint32 carID = 1;
+  uint32 x = 2;
+  uint32 y = 3;
+  uint32 v_x = 4;
+  uint32 v_y = 5;
+  uint32 v_r = 6;
+  uint32 direction = 7;
+  string img = 8;
+}

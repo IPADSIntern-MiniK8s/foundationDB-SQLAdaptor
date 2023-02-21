@@ -14,14 +14,12 @@ import org.apache.commons.io.FileUtils;
 import org.sjtu.se.ipads.fdbserver.basicop.FdbTool;
 import org.sjtu.se.ipads.fdbserver.service.UploadService;
 import org.sjtu.se.ipads.fdbserver.sqlparser.SqlIndexFilter;
-import org.sjtu.se.ipads.fdbserver.sqlparser.adapter.CalciteUtil;
 import org.sjtu.se.ipads.fdbserver.utils.index.IndexManager;
 import org.sjtu.se.ipads.fdbserver.utils.index.MetaDataManager;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +61,7 @@ public class SqlIndexFilterTest {
             UploadService uploadService = new UploadService();
             for (int i = 0; i < arrSize; ++i) {
                 JSONObject jsonObject = array.getJSONObject(i);
-                boolean ret = uploadService.save(db, jsonObject, i + 1);
+                boolean ret = uploadService.save(jsonObject, i + 1);
                 System.out.println("save entry result: " + ret);
             }
 

@@ -1,0 +1,51 @@
+{
+  "measurement": "CAR",
+  "timestamp": {
+    "name": "TIME_STAMP",
+    "type": "varchar"
+  },
+  "tag": [
+    {
+      "tagName": "CAR_ID",
+      "mapping": 0,
+      "type": "int"
+    }
+  ],
+  "field": [
+    {
+      "fieldName": "X",
+      "mapping": 0,
+      "type": "int"
+    },
+    {
+      "fieldName": "Y",
+      "mapping": 1,
+      "type": "int"
+    },
+    {
+      "fieldName": "V_X",
+      "mapping": 2,
+      "type": "int"
+    },
+    {
+      "fieldName": "V_Y",
+      "mapping": 3,
+      "type": "int"
+    },
+    {
+      "fieldName": "V_R",
+      "mapping": 4,
+      "type": "int"
+    },
+    {
+      "fieldName": "DIRECTION",
+      "mapping": 5,
+      "type": "int"
+    },
+    {
+      "fieldName": "IMG",
+      "mapping": 6,
+      "type": "longString"
+    }
+  ]
+}
