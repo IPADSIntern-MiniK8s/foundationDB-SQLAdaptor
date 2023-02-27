@@ -20,7 +20,7 @@ public:
 
     bool RedisWrite(std::string &key, uint32_t value);
 
-    bool RedisWrite(std::string &key, std::string &value);
+    bool RedisWrite(std::string &key, const std::string &value);
     
     std::string RedisRead(const std::string &key);
 };

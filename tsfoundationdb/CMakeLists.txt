@@ -4,9 +4,10 @@ project(tsfoundationdb LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+add_compile_options(-Wall -Wextra -pedantic -Wno-comment)
 find_package(Threads REQUIRED)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${Protobuf_VERSION}")
@@ -30,12 +31,14 @@ find_path(HIREDIS_HEADER hiredis)
 find_library(HIREDIS_LIB hiredis)
 # target_link_libraries(test1  PRIVATE  ${HIREDIS_LIB})
 
-include_directories (cache log metadata protodata test)
+include_directories (cache log metadata protodata test storage service)
 aux_source_directory (cache SRC_LIST1)
 aux_source_directory (log SRC_LIST2)
 aux_source_directory (metadata  SRC_LIST3)
 aux_source_directory (protodata SRC_LIST4)
 aux_source_directory (test SRC_LIST5)
+aux_source_directory (storage SRC_LIST6)
+aux_source_directory (service SRC_LIST7)
 
 # the main program
 add_executable(tsdb_server RpcServer.cpp
@@ -48,9 +51,14 @@ ${hw_grpc_srcs}
 target_link_libraries(tsdb_server ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} ${HIREDIS_DEFAULT_LIBRARY})
 
 # the redis test
-add_executable(redis_test ./test/RedisUtilsTest.cc ${SRC_LIST1} ${SRC_LIST5})
+add_executable(redis_test ./test/RedisUtilsTest.cc ${SRC_LIST1})
 target_include_directories(redis_test PUBLIC ${HIREDIS_HEADER})
 target_link_libraries(redis_test ${HIREDIS_LIB})
 
+# the storage test
+add_executable(storage_test ./test/StorageTest.cc ${SRC_LIST6})
+target_link_libraries(storage_test PRIVATE fdb_c m pthread rt)
 
-
+# the protobuf serialize test
+add_executable(serialize_test ./test/DataServiceTest.cc ${SRC_LIST7} ${SRC_LIST4})
+target_link_libraries(serialize_test ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})

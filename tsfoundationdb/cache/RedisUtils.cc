@@ -46,7 +46,7 @@ bool RedisUtils::RedisWrite(std::string &key, uint32_t value) {
 }
 
 
-bool RedisUtils::RedisWrite(std::string &key, std::string &value) {
+bool RedisUtils::RedisWrite(std::string &key, const std::string &value) {
     std::string command = "SET " + key + " " + value;
     auto reply = static_cast<redisReply*>(redisCommand(context_, command.data()));
     if (reply == nullptr) { 
