@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/redis_test.dir/test/RedisUtilsTest.cc.o CMakeFiles/redis_test.dir/cache/RedisUtils.cc.o -o redis_test  -Wl,-rpath,/usr/local/lib /usr/local/lib/libhiredis.so 
