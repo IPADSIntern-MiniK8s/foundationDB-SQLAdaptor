@@ -1,4 +1,0 @@
-/home/zhaohaoru/tsfoundationdb/build/CMakeFiles/tsdb_server.dir
-/home/zhaohaoru/tsfoundationdb/build/CMakeFiles/redis_test.dir
-/home/zhaohaoru/tsfoundationdb/build/CMakeFiles/edit_cache.dir
-/home/zhaohaoru/tsfoundationdb/build/CMakeFiles/rebuild_cache.dir
