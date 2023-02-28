@@ -9,16 +9,18 @@
 #include <tuple>
 #include <unordered_map>
 #include "RedisUtils.h"
-#include "../log/LogManager.h"
 #include "../metadata/MetaDataManager.h"
 #include "../protodata/FieldMessage.pb.h"
 #include "../service/DataService.h"
+#include "../storage/Storage.h"
 
 ///@brief manage the data which is waiting for write into fdb
 ///@note only support one tag set
 class CacheManager {
 private:
     RedisUtils redis_utils_;
+    ///! the tool for operation on fdb
+    Storage storage_tool_;
     ///! the start timestamp of each round
     uint64_t start_timestamp_;
     ///! record the timestamp delta for each tag set

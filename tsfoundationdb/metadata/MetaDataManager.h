@@ -49,6 +49,8 @@ public:
 
     static std::vector<Field> GetTagList();
 
+    static std::string GetMeasurement();
+
     static void Setup(const std::string &filepath);
 
     static std::vector<Field> GetFieldList();

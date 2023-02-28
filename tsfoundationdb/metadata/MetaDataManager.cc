@@ -83,6 +83,11 @@ void MetaDataManager::Setup(const std::string &filepath) {
 }
 
 
+std::string MetaDataManager::GetMeasurement() {
+    return measurement_;
+}
+
+
 std::vector<Field> MetaDataManager::GetTagList() {
     if (!tag_list_.empty()) {
         return tag_list_;

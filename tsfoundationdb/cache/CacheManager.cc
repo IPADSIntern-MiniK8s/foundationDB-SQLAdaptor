@@ -2,7 +2,7 @@
 
 
 CacheManager::CacheManager(int tag_count, int length_upper_bound):
-    tag_range_(tag_count), length_upper_bound_(length_upper_bound), redis_utils_(), cur_length_(0) {
+    storage_tool_(nullptr), tag_range_(tag_count), length_upper_bound_(length_upper_bound), redis_utils_(), cur_length_(0) {
     timestamp_delta_group_ = std::vector<std::vector<uint64_t>>(tag_range_);
     UpdateStartTimestamp();
 }
@@ -65,11 +65,18 @@ void CacheManager::FlushCache() {
     MetaDataManager::Setup("../test/input/demo.config");
     int n = MetaDataManager::GetAttributeCount();
 
+    // clear the metadata information in the cache
+    uint64_t save_timestamp = this->start_timestamp_;
+    std::vector<std::vector<uint64_t>> save_groups = std::move(timestamp_delta_group_);
+
+    // prepare the cache for coming data
+    timestamp_delta_group_ = std::vector<std::vector<uint64_t>>(tag_range_);
+    UpdateStartTimestamp();
+
     for (int i = 0; i < tag_range_; ++i) {
-        threads.emplace_back(std::thread([this, n, i]() {
-            uint64_t start_timestamp = this->start_timestamp_;
-            
-            std::vector<uint64_t> timestamp_deltas = this->timestamp_delta_group_[i];
+        threads.emplace_back(std::thread([this, n, i, save_timestamp, save_groups]() {
+            uint64_t start_timestamp = save_timestamp;
+            std::vector<uint64_t> timestamp_deltas = save_groups[i];
 
             // get the data type and generate buidler
             // FIXME: This step should be executed once by each thread, which may be repeated
@@ -78,13 +85,16 @@ void CacheManager::FlushCache() {
             // the corresponding relationship index and builder pos
             std::vector<int> relations(n + 2, 0);
             std::unordered_map<int, std::unique_ptr<FieldMessage::IntFieldList>> intfields;
-            std::unordered_map<int, std::unique_ptr<FieldMessage::StrFieldList>> strfileds;
+            std::unordered_map<int, std::unique_ptr<FieldMessage::StrFieldList>> strfields;
             
             for (int j = 2; j <= n + 1; ++j) {
+                if (attributes[j].kind == FIELD_KIND::OTHER || attributes[j].kind == FIELD_KIND::TAG) {
+                    continue;
+                }
                 if (attributes[j].type == TYPE::INT) {
                     intfields[j] = std::move(std::make_unique<FieldMessage::IntFieldList>());
                 } else if (attributes[j].type == TYPE::VARCHAR) {
-                    strfileds[j] = std::move(std::make_unique<FieldMessage::StrFieldList>());
+                    strfields[j] = std::move(std::make_unique<FieldMessage::StrFieldList>());
                 }
             }
 
@@ -93,12 +103,102 @@ void CacheManager::FlushCache() {
                 std::string key = std::to_string(delta) + " " + std::to_string(i);
                 std::string data = this->redis_utils_.RedisRead(key);
                 if (!data.empty()) {
-                    MessageEntry this_entry = DataService::DeserializeMessage(data);
-                    // TODO: may need some error handler
+                    MessageEntry message = DataService::DeserializeMessage(data);
+                    // TODO: may need some exception handler
                     
+                    // compress each field into its block
+                    const google::protobuf::Descriptor *des = message.GetDescriptor();
+                    const google::protobuf::Reflection *ref = message.GetReflection();
+                    int fieldCount = des->field_count();
+                    for (int k = 1; k < fieldCount; ++k) {
+                        const google::protobuf::FieldDescriptor *field = des->field(k);
+                        switch (field->type()) {
+                            case google::protobuf::FieldDescriptor::Type::TYPE_INT32:
+                            case google::protobuf::FieldDescriptor::Type::TYPE_SINT32:
+                            case google::protobuf::FieldDescriptor::Type::TYPE_SFIXED32:
+                                {
+                                    if (!intfields.count(k + 1)) {
+                                        continue;
+                                    }
+                                    FieldMessage::IntField *new_field = intfields[k + 1]->add_fieldlist();
+                                    int32_t data = ref->GetInt32(message, field);
+                                    new_field->set_delta(delta);
+                                    new_field->set_fieldvalue(data);
+                                    break;
+                                }
+                            case google::protobuf::FieldDescriptor::Type::TYPE_UINT32:
+                            case google::protobuf::FieldDescriptor::Type::TYPE_FIXED32:
+                                {
+                                    if (!intfields.count(k + 1)) {
+                                        continue;
+                                    }
+                                    FieldMessage::IntField *new_field = intfields[k + 1]->add_fieldlist();
+                                    int32_t data = ref->GetInt32(message, field);
+                                    new_field->set_delta(delta);
+                                    new_field->set_fieldvalue(data);
+                                    break;
+                                }
+                            case google::protobuf::FieldDescriptor::Type::TYPE_STRING:
+                            case google::protobuf::FieldDescriptor::Type::TYPE_BYTES:
+                                {
+                                    if (!strfields.count(k + 1)) {
+                                        continue;
+                                    }
+                                    FieldMessage::StrField *new_field = strfields[k + 1]->add_fieldlist();
+                                    std::string data = ref->GetString(message, field);
+                                    new_field->set_delta(delta);
+                                    new_field->set_fieldvalue(data);
+                                    break;
+                                }
+                            default:
+                                {
+                                    spdlog::info("[CacheManager] unsupported type");
+                                }
+                        }    
+                    }
+                }
+            }
+
+            // generate key for each block
+            // (measurement, tag set, one field, start timestamp, entry count)
+            std::string measurement = MetaDataManager::GetMeasurement();
+            // tag set = tag_name1 + tag_name2 + ... + tag_name3 + tag_key+value
+            std::vector<Field> tags = MetaDataManager::GetTagList();
+            std::string tag_set;
+            for (auto &tag : tags) {      // TODO: now only support one tag
+                tag_set += tag.name;
+            }
+            tag_set += std::to_string(i);
+            std::string start_timestamp_str = std::to_string(start_timestamp);
+            std::string entry_count_str = std::to_string(timestamp_deltas.size());
+    
+            for (auto &[key, elem] : intfields) {
+                std::string field_name = attributes[key].name;
+                std::string key = measurement + tag_set + field_name + start_timestamp_str + entry_count_str;
+                auto value = DataService::SerializeIntFieldList(elem.get());
+                if (value.first != 0) {
+                    storage_tool_.tsSet(KeySelector(key), BinValue(value.second, value.first));
+                }
+            }
+
+            for (auto &[key, elem] : strfields) {
+                std::string field_name = attributes[key].name;
+                std::string key = measurement + tag_set + field_name + start_timestamp_str + entry_count_str;
+                auto value = DataService::SerializeStrFieldList(elem.get());
+                if (value.first != 0) {
+                    storage_tool_.tsSet(KeySelector(key), BinValue(value.second, value.first));
                 }
             }
         }
         ));
     }
+
+
+    // detach the thread
+    for (auto &thread : threads) {
+        thread.detach();
+    }
 }
+
+
+

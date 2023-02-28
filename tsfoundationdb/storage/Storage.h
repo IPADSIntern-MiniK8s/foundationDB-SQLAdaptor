@@ -98,6 +98,12 @@ class BinValue {
         value_ = new uint8_t[value_size_];
         memcpy(value_, value, value_size_);
     }
+
+    BinValue(const void *value, size_t value_size) : value_size_(value_size) {
+        value_ = new uint8_t[value_size_];
+        memcpy(value_, value, value_size_);
+    }
+
     BinValue(const std::string &value) : value_size_(value.size()) {
         value_ = new uint8_t[value_size_];
         memcpy(value_, value.c_str(), value_size_);
@@ -158,6 +164,8 @@ class Storage {
     std::pair<uint8_t*, size_t> tsGet(uint8_t *key, int key_size);
 
     void tsSet(uint8_t *key, int key_size, uint8_t *value, int value_size);
+
+    void tsSet(const KeySelector &key, const BinValue &value);
 
     // Get value from database
     // Return value is allocated by malloc()

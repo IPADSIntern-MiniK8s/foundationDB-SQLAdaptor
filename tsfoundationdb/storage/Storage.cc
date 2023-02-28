@@ -92,6 +92,12 @@ void Storage::tsSet(uint8_t *key, int key_size, uint8_t *value, int value_size) 
 }
 
 
+void Storage::tsSet(const KeySelector &key, const BinValue &value) {
+    begin_transaction();
+    this->set(key, value);
+    commit_transaction();
+}
+
 
 Storage::TransactionError Storage::commit_transaction() {
     auto future = fdb_transaction_commit(transaction_);
