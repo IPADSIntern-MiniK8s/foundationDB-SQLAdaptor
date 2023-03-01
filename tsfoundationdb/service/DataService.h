@@ -2,6 +2,8 @@
 #define DATA_SERVICE_H_
 
 #include <utility>
+#include <sstream>
+#include <google/protobuf/text_format.h>
 #include "spdlog/spdlog.h"
 #include "../protodata/FieldMessage.pb.h"
 #include "../protodata/RpcMessage.pb.h"

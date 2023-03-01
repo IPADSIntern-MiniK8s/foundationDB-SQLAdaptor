@@ -45,6 +45,9 @@ public:
     bool WriteToCache(const std::string &data, std::string &timestamp, int tag_key);
 
     bool TriggerFlush();
+
+    ///@brief immediately read to fdb
+    bool ImmediateStore(const std::string &timestamp, int tag_key, const std::string &data);
 };
 
 #endif

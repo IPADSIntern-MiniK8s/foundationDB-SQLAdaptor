@@ -2,7 +2,7 @@
 
 
 CacheManager::CacheManager(int tag_count, int length_upper_bound):
-    storage_tool_(nullptr), tag_range_(tag_count), length_upper_bound_(length_upper_bound), redis_utils_(), cur_length_(0) {
+    redis_utils_(), storage_tool_(nullptr), tag_range_(tag_count), length_upper_bound_(length_upper_bound), cur_length_(0) {
     timestamp_delta_group_ = std::vector<std::vector<uint64_t>>(tag_range_);
     UpdateStartTimestamp();
 }
@@ -62,7 +62,7 @@ bool CacheManager::TriggerFlush() {
 void CacheManager::FlushCache() {
     // one thread for each tag set
     std::vector<std::thread> threads;
-    MetaDataManager::Setup("../test/input/demo.config");
+    // MetaDataManager::Setup("../test/input/demo.config");
     int n = MetaDataManager::GetAttributeCount();
 
     // clear the metadata information in the cache
@@ -72,6 +72,7 @@ void CacheManager::FlushCache() {
     // prepare the cache for coming data
     timestamp_delta_group_ = std::vector<std::vector<uint64_t>>(tag_range_);
     UpdateStartTimestamp();
+    cur_length_ = 0;
 
     for (int i = 0; i < tag_range_; ++i) {
         threads.emplace_back(std::thread([this, n, i, save_timestamp, save_groups]() {
@@ -172,8 +173,8 @@ void CacheManager::FlushCache() {
             std::string start_timestamp_str = std::to_string(start_timestamp);
             std::string entry_count_str = std::to_string(timestamp_deltas.size());
     
-            for (auto &[key, elem] : intfields) {
-                std::string field_name = attributes[key].name;
+            for (auto &[int_key, elem] : intfields) {
+                std::string field_name = attributes[int_key].name;
                 std::string key = measurement + tag_set + field_name + start_timestamp_str + entry_count_str;
                 auto value = DataService::SerializeIntFieldList(elem.get());
                 if (value.first != 0) {
@@ -181,8 +182,8 @@ void CacheManager::FlushCache() {
                 }
             }
 
-            for (auto &[key, elem] : strfields) {
-                std::string field_name = attributes[key].name;
+            for (auto &[str_key, elem] : strfields) {
+                std::string field_name = attributes[str_key].name;
                 std::string key = measurement + tag_set + field_name + start_timestamp_str + entry_count_str;
                 auto value = DataService::SerializeStrFieldList(elem.get());
                 if (value.first != 0) {
@@ -198,6 +199,14 @@ void CacheManager::FlushCache() {
     for (auto &thread : threads) {
         thread.detach();
     }
+}
+
+
+bool CacheManager::ImmediateStore(const std::string &timestamp, int tag_key, const std::string &data) {
+    std::string key = timestamp + std::to_string(tag_key);
+    // TODO: maybe need change to asynchronous later
+    storage_tool_.tsSet(KeySelector(key), BinValue(data));
+    return true;
 }
 
 

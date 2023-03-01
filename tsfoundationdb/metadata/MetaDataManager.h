@@ -17,7 +17,8 @@ enum class TYPE {
 enum class FIELD_KIND {
     TAG,
     FIELD,
-    OTHER
+    OTHER,
+    UNKNOWN
 };
 
 struct Field
@@ -65,6 +66,11 @@ public:
     static FIELD_KIND GetField(const std::string &name);
 
     static int GetAttributeCount();
+
+    static FIELD_KIND GetFieldByIndex(int id);
+
+    static TYPE GetTypeByIndex(int id);
+
 };
 
 #endif

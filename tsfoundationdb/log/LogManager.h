@@ -1,9 +1,9 @@
 #ifndef LOG_MANAGER_H_
 #define LOG_MANAGER_H_
 
-#include "spdlog/pattern_formatter.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/rotating_file_sink.h"
+#include "spdlog/pattern_formatter.h"
 #include "../metadata/MetaDataManager.h"
 
 enum class LOG_TYPE {

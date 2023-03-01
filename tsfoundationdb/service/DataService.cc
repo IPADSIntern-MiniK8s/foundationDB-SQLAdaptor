@@ -2,9 +2,13 @@
 
 std::string DataService::SerializeMessage(MessageEntry *entry) {
     std::string result;
-    if (!entry->SerializeToString(&result)) {
-        spdlog::error("[DataService] serialize message fail");
-    }
+    ///@note need to generate readable string
+    
+    // if (!entry->SerializeToString(&result)) {
+    //     spdlog::error("[DataService] serialize message fail");
+    // }
+    google::protobuf::TextFormat::PrintToString(*entry, &result);
+    // result = entry->DebugString();
     return result;
 }
 
@@ -19,7 +23,7 @@ MessageEntry DataService::DeserializeMessage(const std::string &data) {
 
 
 std::pair<int, void*> DataService::SerializeIntFieldList(IntFieldList *list) {
-    int data_size = list->ByteSize();
+    int data_size = list->ByteSizeLong();
     void *data = malloc(data_size);
     if (!list->SerializeToArray(data, data_size)) {
         free(data);
@@ -32,7 +36,7 @@ std::pair<int, void*> DataService::SerializeIntFieldList(IntFieldList *list) {
 
 
 std::pair<int, void*> DataService::SerializeStrFieldList(StrFieldList *list) {
-    int data_size = list->ByteSize();
+    int data_size = list->ByteSizeLong();
     void *data = malloc(data_size);
     if (!list->SerializeToArray(data, data_size)) {
         free(data);

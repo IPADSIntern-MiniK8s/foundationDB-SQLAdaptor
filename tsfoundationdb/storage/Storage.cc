@@ -1,5 +1,5 @@
 #include "Storage.h"
-#include <spdlog/spdlog.h>
+#include "spdlog/spdlog.h"
 
 
 std::thread Storage::network_thread;
@@ -139,7 +139,7 @@ void Storage::set(const KeySelector &key, const BinValue &value) {
         throw std::runtime_error("Transaction not created.");
     }
     fdb_transaction_set(transaction_, key.key(), key.key_size(), value.value(), value.value_size());
-    spdlog::debug("Storage::set: Set value success. [key={}]", key.key());
+    // spdlog::debug("Storage::set: Set value success. [key={}]", static_cast<char*>(key.key()));
 }
 
 void Storage::del(const KeySelector &key) {
@@ -171,11 +171,11 @@ std::optional<std::shared_ptr<BinValue>> Storage::get(const KeySelector &key,
    
     if (is_present) {
         auto ret = std::make_shared<BinValue>(value, value_size);
-        spdlog::debug("Value found. key = {}", key.key());
+        // spdlog::debug("Value found. key = {}", key.key());
         fdb_future_destroy(future);
         return std::make_optional(ret);
     }
-    spdlog::debug("Value not found. [key={}]", key.key());
+    // spdlog::debug("Value not found. [key={}]", key.key());
     fdb_future_destroy(future);
     return std::nullopt;
 }
@@ -249,13 +249,13 @@ std::future<std::optional<std::shared_ptr<BinValue>>> Storage::get_async(const K
             throw std::runtime_error("Get value error.");
         }
         if (is_present) {
-            spdlog::debug("Storage::get_async: Get value success. [key={}]", key.key());
+            // spdlog::debug("Storage::get_async: Get value success. [key={}]", key.key());
             auto ret = std::make_shared<BinValue>(value, value_size);
             fdb_future_destroy(future);
             return std::make_optional(ret);
         }
         fdb_future_destroy(future);
-        spdlog::debug("Value not found. [key={}]", key.key());
+        // spdlog::debug("Value not found. [key={}]", key.key());
         return std::nullopt;
     });
 }

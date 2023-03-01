@@ -5,9 +5,10 @@ LogManager::LogManager(int file_count, const std::string &file_name):
     // rotate log file, each file is 5MB
     logger_ = spdlog::rotating_logger_mt("tsdb_logger", file_name_, 1048576 * 5, 5);
     // set the log format
-    auto formatter = std::make_unique<spdlog::pattern_formatter>();
-    formatter->set_pattern("[%Y %m %d %T] %v");
-    logger_->set_formatter(std::move(formatter));
+    // auto formatter = std::make_unique<spdlog::pattern_formatter>();
+    // formatter->set_pattern("[%Y %m %d %T] %v");
+    logger_->set_pattern("[%Y %m %d %T] %v");
+    // logger_->set_formatter(std::move(formatter));
 }
 
 

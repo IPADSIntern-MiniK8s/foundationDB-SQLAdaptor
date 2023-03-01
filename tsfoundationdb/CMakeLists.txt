@@ -51,9 +51,9 @@ ${hw_grpc_srcs}
 target_link_libraries(tsdb_server ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF} ${HIREDIS_DEFAULT_LIBRARY})
 
 # the redis test
-add_executable(redis_test ./test/RedisUtilsTest.cc ${SRC_LIST1})
+add_executable(redis_test ./test/RedisUtilsTest.cc ${SRC_LIST3} ${SRC_LIST4} ${SRC_LIST6} ${SRC_LIST7} ${SRC_LIST1})
 target_include_directories(redis_test PUBLIC ${HIREDIS_HEADER})
-target_link_libraries(redis_test ${HIREDIS_LIB})
+target_link_libraries(redis_test ${HIREDIS_LIB} fdb_c m pthread rt ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
 
 # the storage test
 add_executable(storage_test ./test/StorageTest.cc ${SRC_LIST6})
@@ -62,3 +62,7 @@ target_link_libraries(storage_test PRIVATE fdb_c m pthread rt)
 # the protobuf serialize test
 add_executable(serialize_test ./test/DataServiceTest.cc ${SRC_LIST7} ${SRC_LIST4})
 target_link_libraries(serialize_test ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+
+# the log test
+add_executable(log_test ./test/LogManagerTest.cc ${SRC_LIST7} ${SRC_LIST4} ${SRC_LIST2})
+target_link_libraries(log_test ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
