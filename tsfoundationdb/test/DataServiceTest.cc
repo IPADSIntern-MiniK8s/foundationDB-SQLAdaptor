@@ -13,16 +13,16 @@ int main() {
     input_entry.set_direction(12345);
 
     std::string mid_result = DataService::SerializeMessage(&input_entry);
-    MessageEntry output_entry = DataService::DeserializeMessage(mid_result);
+    MessageEntry *output_entry = DataService::DeserializeMessage(mid_result);
 
-    ASSERT(input_entry.carid() == output_entry.carid(), "serialize/deserialize test fail");
-    ASSERT(input_entry.timestamp() == output_entry.timestamp(), "serialize/deserialize test fail");
-    ASSERT(input_entry.x() == output_entry.x(), "serialize/deserialize test fail");
-    ASSERT(input_entry.y() == output_entry.y(), "serialize/deserialize test fail");
-    ASSERT(input_entry.v_x() == output_entry.v_x(), "serialize/deserialize test fail");
-    ASSERT(input_entry.v_y() == output_entry.v_y(), "serialize/deserialize test fail");
-    ASSERT(input_entry.v_r() == output_entry.v_r(), "serialize/deserialize test fail");
-    ASSERT(input_entry.direction() == output_entry.direction(), "serialize/deserialize test fail");
+    ASSERT(input_entry.carid() == output_entry->carid(), "serialize/deserialize test fail");
+    ASSERT(input_entry.timestamp() == output_entry->timestamp(), "serialize/deserialize test fail");
+    ASSERT(input_entry.x() == output_entry->x(), "serialize/deserialize test fail");
+    ASSERT(input_entry.y() == output_entry->y(), "serialize/deserialize test fail");
+    ASSERT(input_entry.v_x() == output_entry->v_x(), "serialize/deserialize test fail");
+    ASSERT(input_entry.v_y() == output_entry->v_y(), "serialize/deserialize test fail");
+    ASSERT(input_entry.v_r() == output_entry->v_r(), "serialize/deserialize test fail");
+    ASSERT(input_entry.direction() == output_entry->direction(), "serialize/deserialize test fail");
     
     return 0;
 }

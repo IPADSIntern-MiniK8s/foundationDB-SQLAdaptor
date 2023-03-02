@@ -104,12 +104,12 @@ void CacheManager::FlushCache() {
                 std::string key = std::to_string(delta) + " " + std::to_string(i);
                 std::string data = this->redis_utils_.RedisRead(key);
                 if (!data.empty()) {
-                    MessageEntry message = DataService::DeserializeMessage(data);
+                    MessageEntry *message = DataService::DeserializeMessage(data);
                     // TODO: may need some exception handler
                     
                     // compress each field into its block
-                    const google::protobuf::Descriptor *des = message.GetDescriptor();
-                    const google::protobuf::Reflection *ref = message.GetReflection();
+                    const google::protobuf::Descriptor *des = message->GetDescriptor();
+                    const google::protobuf::Reflection *ref = message->GetReflection();
                     int fieldCount = des->field_count();
                     for (int k = 1; k < fieldCount; ++k) {
                         const google::protobuf::FieldDescriptor *field = des->field(k);
@@ -122,7 +122,7 @@ void CacheManager::FlushCache() {
                                         continue;
                                     }
                                     FieldMessage::IntField *new_field = intfields[k + 1]->add_fieldlist();
-                                    int32_t data = ref->GetInt32(message, field);
+                                    int32_t data = ref->GetInt32(*message, field);
                                     new_field->set_delta(delta);
                                     new_field->set_fieldvalue(data);
                                     break;
@@ -134,7 +134,7 @@ void CacheManager::FlushCache() {
                                         continue;
                                     }
                                     FieldMessage::IntField *new_field = intfields[k + 1]->add_fieldlist();
-                                    int32_t data = ref->GetInt32(message, field);
+                                    int32_t data = ref->GetInt32(*message, field);
                                     new_field->set_delta(delta);
                                     new_field->set_fieldvalue(data);
                                     break;
@@ -146,7 +146,7 @@ void CacheManager::FlushCache() {
                                         continue;
                                     }
                                     FieldMessage::StrField *new_field = strfields[k + 1]->add_fieldlist();
-                                    std::string data = ref->GetString(message, field);
+                                    std::string data = ref->GetString(*message, field);
                                     new_field->set_delta(delta);
                                     new_field->set_fieldvalue(data);
                                     break;
@@ -157,6 +157,7 @@ void CacheManager::FlushCache() {
                                 }
                         }    
                     }
+                    delete message;
                 }
             }
 

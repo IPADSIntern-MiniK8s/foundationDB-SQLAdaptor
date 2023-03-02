@@ -66,3 +66,6 @@ target_link_libraries(serialize_test ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_
 # the log test
 add_executable(log_test ./test/LogManagerTest.cc ${SRC_LIST7} ${SRC_LIST4} ${SRC_LIST2})
 target_link_libraries(log_test ${_REFLECTION} ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+
+# the metadata test
+add_executable(metadata_test ./test/MetaDataManagerTest.cc ${SRC_LIST3})

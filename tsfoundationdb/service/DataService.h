@@ -18,7 +18,7 @@ class DataService {
 public:
     static std::string SerializeMessage(MessageEntry *entry);
     
-    static MessageEntry DeserializeMessage(const std::string &data);
+    static MessageEntry* DeserializeMessage(const std::string &data);
     
     static std::pair<int, void*> SerializeIntFieldList(IntFieldList *list);
     

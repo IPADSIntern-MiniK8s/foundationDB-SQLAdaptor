@@ -31,6 +31,7 @@ public:
     std::vector<std::string> RestoreLog(int n = 1);
 
     ///@brief restore the log after a time point
+    ///@note the timestamp format example: 2023 03 02 18:07:48
     std::vector<std::string> RestoreLog(const std::string &timestamp);
 };
 #endif

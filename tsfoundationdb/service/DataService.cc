@@ -4,18 +4,46 @@ std::string DataService::SerializeMessage(MessageEntry *entry) {
     std::string result;
     ///@note need to generate readable string
     
-    // if (!entry->SerializeToString(&result)) {
-    //     spdlog::error("[DataService] serialize message fail");
+    if (!entry->SerializeToString(&result)) {
+        spdlog::error("[DataService] serialize message fail");
+    }
+    // google::protobuf::TextFormat::PrintToString(*entry, &result);
+    // const google::protobuf::Descriptor *des = entry->GetDescriptor();
+    // const google::protobuf::Reflection *ref = entry->GetReflection();
+    // int fieldCount = des->field_count();
+    // for (int i = 0; i < fieldCount; ++i) {
+    //     const google::protobuf::FieldDescriptor *field = des->field(i);
+    //     switch (field->type()) {
+    //         case google::protobuf::FieldDescriptor::Type::TYPE_INT32:
+    //         case google::protobuf::FieldDescriptor::Type::TYPE_SINT32:
+    //         case google::protobuf::FieldDescriptor::Type::TYPE_SFIXED32:
+    //             result += (std::to_string(ref->GetInt32(*entry, field)) + "$");
+    //             break;
+    //         case google::protobuf::FieldDescriptor::Type::TYPE_UINT32:
+    //         case google::protobuf::FieldDescriptor::Type::TYPE_FIXED32:
+    //             result += (std::to_string(ref->GetUInt32(*entry, field)) + "$");
+    //             break;
+    //         case google::protobuf::FieldDescriptor::Type::TYPE_STRING:
+    //         case google::protobuf::FieldDescriptor::Type::TYPE_BYTES:
+    //             result += (ref->GetString(*entry, field) + "$");
+    //             break;
+    //         default:
+    //             spdlog::error("[DataService] unsupport message type");
+    //             break;
+    //     }
     // }
-    google::protobuf::TextFormat::PrintToString(*entry, &result);
     // result = entry->DebugString();
     return result;
 }
 
 
-MessageEntry DataService::DeserializeMessage(const std::string &data) {
-    MessageEntry message_entry;
-    if (!message_entry.ParseFromString(data)) {
+MessageEntry* DataService::DeserializeMessage(const std::string &data) {
+    MessageEntry *message_entry = new MessageEntry();
+    // const google::protobuf::Descriptor *des = message_entry->GetDescriptor();
+    // const google::protobuf::Reflection *ref = message_entry->GetReflection();
+    // int fieldCount = des->field_count();
+    // spdlog::debug("the field count: {}", fieldCount);
+    if (!message_entry->ParseFromString(data)) {
         spdlog::error("[DataService] serialize message fail");
     }
     return message_entry;
