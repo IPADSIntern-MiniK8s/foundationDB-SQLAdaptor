@@ -3,7 +3,7 @@ package org.sjtu.se.ipads.fdbserver.tsdb.log;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.sjtu.se.ipads.fdbserver.service.UploadService;
+//import org.sjtu.se.ipads.fdbserver.service.UploadService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

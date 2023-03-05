@@ -1,4 +1,4 @@
-package org.sjtu.se.ipads.fdbserver.test;
-
-public class AdaptorTest {
-}
+//package org.sjtu.se.ipads.fdbserver.test;
+//
+//public class AdaptorTest {
+//}
