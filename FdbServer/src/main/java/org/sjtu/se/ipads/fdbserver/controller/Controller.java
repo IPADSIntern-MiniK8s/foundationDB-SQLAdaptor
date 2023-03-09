@@ -21,7 +21,7 @@ public class Controller {
             @RequestParam("r") double r,
             @RequestParam("vx") double vx,
             @RequestParam("vy") double vy,
-            @RequestParam("rr") double vr,
+            @RequestParam("vr") double vr,
             @RequestParam("image") String img
 
     ){
