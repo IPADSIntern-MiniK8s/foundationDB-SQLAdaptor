@@ -39,13 +39,13 @@
 //
 //        UploadService uploadService = new UploadService();
 //
-//        String filePath = Sources.of(DemoAdaptorTest.class.getResource("/input.json"))
+//        String filePath = Sources.of(UploadServiceTest.class.getResource("/real_input.json"))
 //                .file().getAbsolutePath();
 //        File file=new File(filePath);
 //        String content = FileUtils.readFileToString(file);
 //        JSONObject jsonObject = JSON.parseObject(content);
 //
-//        boolean ret = uploadService.save(jsonObject, 1);
+//        boolean ret = uploadService.save(jsonObject);
 //        assert ret == true;
 //
 //        // test save result by querying
@@ -68,7 +68,7 @@
 //        byte[] key = Tuple.from(indexTables.get(0), 1, 1).pack();
 //        byte[] result = fdbTool.query(db, key);
 //        assert Tuple.fromBytes(result).getLong(0) == 1;
-//        key = Tuple.from(indexTables.get(1), "2277166961600969300", 1).pack();
+//        key = Tuple.from(indexTables.get(1), "1676957670", 1).pack();
 //        result = fdbTool.query(db, key);
 //        assert Tuple.fromBytes(result).getLong(0) == 1;
 //        key = Tuple.from(indexTables.get(2), 10344450, 1).pack();

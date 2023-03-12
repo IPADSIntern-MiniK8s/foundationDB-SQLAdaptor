@@ -14,15 +14,27 @@ public class Counter {
     static volatile int counter;
     Lock l = new ReentrantLock();
 
+    static {
+        counter = 0;
+    }
+
+    /**
+     * usage: Counter(fdbTool, db, HEADER)
+     * @param fdbTool
+     * @param db
+     * @param table_name
+     */
     public Counter(FdbTool fdbTool, Database db, String table_name) {
         l.lock();
-        List<byte[]> result = fdbTool.queryAll(db, table_name);
-        // the database is empty
-        int size = result.size();
-        if (size < 1) {
-            counter = 1;
-        } else {
-            counter = (int) Tuple.fromBytes(result.get(size - 1)).getLong(0);
+        if (counter == 0) {
+            List<byte[]> result = fdbTool.queryAll(db, table_name);
+            // the database is empty
+            int size = result.size();
+            if (size < 1) {
+                counter = 1;
+            } else {
+                counter = (int) Tuple.fromBytes(result.get(size - 1)).getLong(0);
+            }
         }
         l.unlock();
     }

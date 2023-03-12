@@ -1,6 +1,5 @@
 package org.sjtu.se.ipads.fdbserver.service;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.apple.foundationdb.Database;
 import com.apple.foundationdb.FDB;
@@ -8,7 +7,9 @@ import com.apple.foundationdb.FDBException;
 import com.apple.foundationdb.Transaction;
 import com.apple.foundationdb.tuple.Tuple;
 import org.apache.calcite.util.Sources;
+import org.sjtu.se.ipads.fdbserver.FdbServerApplication;
 import org.sjtu.se.ipads.fdbserver.basicop.FdbTool;
+import org.sjtu.se.ipads.fdbserver.test.UploadServiceTest;
 import org.sjtu.se.ipads.fdbserver.utils.index.IndexManager;
 import org.sjtu.se.ipads.fdbserver.utils.index.MetaDataManager;
 import org.springframework.stereotype.Service;
@@ -108,10 +109,15 @@ public class CarService {
 
     }
 
+
+
+
     public CarService() throws IOException {
 
         String indexPath =  "./index.json";
         String metaDataPath = "./model.json";
+//        String indexPath = this.getClass().getClassLoader().getResource("index.json").getPath();
+//        String metaDataPath = this.getClass().getClassLoader().getResource("model.json").getPath();
         indexManager = new IndexManager(indexPath);
         metaDataManager = new MetaDataManager(metaDataPath);
 
