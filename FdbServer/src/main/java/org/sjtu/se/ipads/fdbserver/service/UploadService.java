@@ -10,7 +10,7 @@ import com.apple.foundationdb.tuple.Tuple;
 import com.google.protobuf.FloatValueOrBuilder;
 import org.apache.calcite.util.Sources;
 import org.sjtu.se.ipads.fdbserver.basicop.FdbTool;
-import org.sjtu.se.ipads.fdbserver.test.UploadServiceTest;
+//import org.sjtu.se.ipads.fdbserver.test.UploadServiceTest;
 import org.sjtu.se.ipads.fdbserver.utils.counter.Counter;
 import org.sjtu.se.ipads.fdbserver.utils.index.IndexManager;
 import org.sjtu.se.ipads.fdbserver.utils.index.MetaDataManager;
@@ -168,20 +168,40 @@ public class UploadService {
         }
 
         // insert all entry in a transaction
-        Transaction tr = db.createTransaction();
-        for (Map.Entry<String, Tuple> elem : toSave) {
-            byte[] primaryKey = Tuple.from(elem.getKey(), message_id).pack();
-            fdbTool.add(tr, primaryKey, elem.getValue().pack());
-        }
-        byte[] indexedVal = Tuple.from(message_id).pack();
-        for (Map.Entry<String, Tuple> elem : toIndex) {
-            fdbTool.add(tr, elem.getValue().pack(), indexedVal);
-        }
+//        Transaction tr = db.createTransaction();
+//        db.run(trr -> {
+//            trr.set(Tuple.from("kkk").pack(), Tuple.from("bbb").pack());
+//            return null;
+//        });
+//        for (Map.Entry<String, Tuple> elem : toSave) {
+//            byte[] primaryKey = Tuple.from(elem.getKey(), message_id).pack();
+//            fdbTool.add(tr, primaryKey, elem.getValue().pack());
+//            System.out.println(Arrays.toString(primaryKey));
+//        }
+//        byte[] indexedVal = Tuple.from(message_id).pack();
+//        for (Map.Entry<String, Tuple> elem : toIndex) {
+//            fdbTool.add(tr, elem.getValue().pack(), indexedVal);
+//            System.out.println(Arrays.toString(elem.getValue().pack()));
+//        }
         try {
-            tr.commit();
-            tr.close();
+            db.run(tr -> {
+                for (Map.Entry<String, Tuple> elem : toSave) {
+                    byte[] primaryKey = Tuple.from(elem.getKey(), message_id).pack();
+                    fdbTool.add(tr, primaryKey, elem.getValue().pack());
+                    System.out.println(Arrays.toString(primaryKey));
+                }
+                byte[] indexedVal = Tuple.from(message_id).pack();
+                for (Map.Entry<String, Tuple> elem : toIndex) {
+                    fdbTool.add(tr, elem.getValue().pack(), indexedVal);
+                    System.out.println(Arrays.toString(elem.getValue().pack()));
+                }
+                return null;
+            });
+//            tr.commit();
+//            System.out.println("save finish");
+//            tr.close();
         } catch (FDBException e) {
-            tr.close();
+//            tr.close();
             return false;
         }
         return true;

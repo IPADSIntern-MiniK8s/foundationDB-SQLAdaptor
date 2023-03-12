@@ -9,7 +9,7 @@ import com.apple.foundationdb.tuple.Tuple;
 import org.apache.calcite.util.Sources;
 import org.sjtu.se.ipads.fdbserver.FdbServerApplication;
 import org.sjtu.se.ipads.fdbserver.basicop.FdbTool;
-import org.sjtu.se.ipads.fdbserver.test.UploadServiceTest;
+//import org.sjtu.se.ipads.fdbserver.test.UploadServiceTest;
 import org.sjtu.se.ipads.fdbserver.utils.index.IndexManager;
 import org.sjtu.se.ipads.fdbserver.utils.index.MetaDataManager;
 import org.springframework.stereotype.Service;
