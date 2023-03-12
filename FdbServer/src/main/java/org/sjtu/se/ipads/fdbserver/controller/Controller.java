@@ -35,8 +35,13 @@ public class Controller {
 //    }
 
     @PostMapping("/uploadData_v2")
-    public boolean createGroup(@RequestBody JSONObject carData) {
+    public boolean uploadData_v2(@RequestBody JSONObject carData) {
         return uploadService.save(carData);
+    }
+
+    @RequestMapping("/getDataByMessageID")
+    public String getDataByMessageID(@RequestParam("messageID") int messageID) {
+        return uploadService.query(messageID);
     }
 
 }

@@ -206,4 +206,25 @@ public class UploadService {
         }
         return true;
     }
+
+    public String query(int messageID){
+        String res = "";
+        List<String> tables = Arrays.asList("HEADER", "GEOMETRY", "IMAGE");
+        try {
+            for (String table : tables) {
+                byte[] key = Tuple.from(table, messageID).pack();
+                byte[] result = fdbTool.query(db, key);
+                List<Object> entry = new ArrayList<>();
+                int size = Tuple.fromBytes(result).size();
+                for (int i = 0; i < size; ++i) {
+                    entry.add(Tuple.fromBytes(result).get(i));
+                }
+                res += table+":"+ entry.toString()+"\n";
+//            System.out.println(entry.toString());
+            }
+        } catch (Exception e) {
+            return res;
+        }
+        return res;
+    }
 }
