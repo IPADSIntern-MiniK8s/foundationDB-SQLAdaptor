@@ -92,9 +92,9 @@ public class UploadService {
      * @param val
      * @return
      */
-    private int convertFloatToInt(float val) {
+    private int convertDoubleToInt(Double val) {
         val = val * 1000;
-        return Math.round(val);
+        return (int) Math.round(val);
     }
 
 
@@ -123,8 +123,8 @@ public class UploadService {
                     fail = true;
                     break;
                 } else {
-                    if ((elem instanceof Float) && type.equals("int")) {
-                        val = val.add(convertFloatToInt((Float) elem));
+                    if ((elem instanceof Double) && type.equals("int")) {
+                        val = val.add(convertDoubleToInt((Double) elem));
                     } else if ((elem instanceof Integer) && type.equals("int")){
                         val = val.add((Integer) elem);
                     } else if (!(elem instanceof String) && type.equals("varchar")) {
@@ -145,8 +145,8 @@ public class UploadService {
 //                    } else {
 //                        key = key.add((String) elem);
 //                    }
-                    if ((elem instanceof Float) && type.equals("int")) {
-                        key = key.add(convertFloatToInt((Float) elem));
+                    if ((elem instanceof Double) && type.equals("int")) {
+                        key = key.add(convertDoubleToInt((Double) elem));
                     } else if ((elem instanceof Integer) && type.equals("int")){
                         key = key.add((Integer) elem);
                     } else if (!(elem instanceof String) && type.equals("varchar")) {
