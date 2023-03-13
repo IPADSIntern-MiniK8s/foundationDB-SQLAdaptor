@@ -2,7 +2,7 @@ package org.sjtu.se.ipads.fdbserver.controller;
 
 
 import com.alibaba.fastjson.JSONObject;
-import org.sjtu.se.ipads.fdbserver.service.CarService;
+import org.sjtu.se.ipads.fdbserver.service.QueryService;
 import org.sjtu.se.ipads.fdbserver.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -10,13 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 
 @RestController
-public class Controller {
+public class UploadController {
 
 //    @Autowired
 //    CarService carService;
 
     @Resource
     UploadService uploadService;
+
 
 //    @RequestMapping("/uploadData")
 //    public boolean uploadData(
@@ -39,9 +40,5 @@ public class Controller {
         return uploadService.save(carData);
     }
 
-    @RequestMapping("/getDataByMessageID")
-    public String getDataByMessageID(@RequestParam("messageID") int messageID) {
-        return uploadService.query(messageID);
-    }
 
 }

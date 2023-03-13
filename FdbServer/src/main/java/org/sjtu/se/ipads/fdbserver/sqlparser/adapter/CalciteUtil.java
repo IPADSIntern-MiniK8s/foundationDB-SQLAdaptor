@@ -20,15 +20,10 @@ public class CalciteUtil {
      * @param filePath
      * @return
      */
-    public static Connection getConnect(String filePath) {
+    public static Connection getConnect() {
         Connection connection = null;
         try {
-            URL url = CalciteUtil.class.getResource(filePath);
-            String str = URLDecoder.decode(url.toString(), "UTF-8");
-            Properties info = new Properties();
-            info.put("model", str.replace("file:", ""));
-            connection = DriverManager.getConnection("jdbc:calcite:", info);
-//            connection.unwrap(CalciteConnection.class);
+            connection = DriverManager.getConnection("jdbc:calcite:model=./model.json");
         } catch (Exception e) {
             e.printStackTrace();
         }

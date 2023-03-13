@@ -33,41 +33,10 @@ public class UploadService {
 
     private Counter counter;
 
-    public UploadService(String indexFile, String metaDataFile) {
-        try {
-            String indexPath =  "./" + indexFile;
-            String metaDataPath = "./" + metaDataFile;
-//            String indexPath =  Sources.of(UploadServiceTest.class.getResource(indexFile))
-//                    .file().getAbsolutePath();
-//            String metaDataPath = Sources.of(UploadServiceTest.class.getResource(metaDataFile))
-//                    .file().getAbsolutePath();
-            indexManager = new IndexManager(indexPath);
-            metaDataManager = new MetaDataManager(metaDataPath);
-
-            FDB fdb = FDB.selectAPIVersion(710);
-            db = fdb.open();
-            db.options().setTransactionTimeout(60000);  // 60,000 ms = 1 minute
-            db.options().setTransactionRetryLimit(100);
-
-            fdbTool = new FdbTool();
-
-            // initialize the counter
-            counter = new Counter(fdbTool, db, "HEADER");
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.error("[UploadService] indexManager or metaDataManager initialization fail");
-        }
-    }
-
-
     public UploadService() {
         try {
             String indexPath =  "./index.json";
             String metaDataPath = "./model.json";
-//            String indexPath =  Sources.of(UploadServiceTest.class.getResource("/index.json"))
-//                    .file().getAbsolutePath();
-//            String metaDataPath = Sources.of(UploadServiceTest.class.getResource("/model.json"))
-//                    .file().getAbsolutePath();
             indexManager = new IndexManager(indexPath);
             metaDataManager = new MetaDataManager(metaDataPath);
 
@@ -140,11 +109,6 @@ public class UploadService {
                     Tuple key = new Tuple();
                     String indexTableName = "i_" + isIndexed;
                     key = key.add(indexTableName);
-//                    if (elem instanceof Integer) {
-//                        key = key.add((Integer) elem);
-//                    } else {
-//                        key = key.add((String) elem);
-//                    }
                     if ((elem instanceof Double) && type.equals("int")) {
                         key = key.add(convertDoubleToInt((Double) elem));
                     } else if ((elem instanceof Integer) && type.equals("int")){
@@ -167,33 +131,15 @@ public class UploadService {
             return false;
         }
 
-        // insert all entry in a transaction
-//        Transaction tr = db.createTransaction();
-//        db.run(trr -> {
-//            trr.set(Tuple.from("kkk").pack(), Tuple.from("bbb").pack());
-//            return null;
-//        });
-//        for (Map.Entry<String, Tuple> elem : toSave) {
-//            byte[] primaryKey = Tuple.from(elem.getKey(), message_id).pack();
-//            fdbTool.add(tr, primaryKey, elem.getValue().pack());
-//            System.out.println(Arrays.toString(primaryKey));
-//        }
-//        byte[] indexedVal = Tuple.from(message_id).pack();
-//        for (Map.Entry<String, Tuple> elem : toIndex) {
-//            fdbTool.add(tr, elem.getValue().pack(), indexedVal);
-//            System.out.println(Arrays.toString(elem.getValue().pack()));
-//        }
         try {
             db.run(tr -> {
                 for (Map.Entry<String, Tuple> elem : toSave) {
                     byte[] primaryKey = Tuple.from(elem.getKey(), message_id).pack();
                     fdbTool.add(tr, primaryKey, elem.getValue().pack());
-                    System.out.println(Arrays.toString(primaryKey));
                 }
                 byte[] indexedVal = Tuple.from(message_id).pack();
                 for (Map.Entry<String, Tuple> elem : toIndex) {
                     fdbTool.add(tr, elem.getValue().pack(), indexedVal);
-                    System.out.println(Arrays.toString(elem.getValue().pack()));
                 }
                 return null;
             });
@@ -207,24 +153,4 @@ public class UploadService {
         return true;
     }
 
-    public String query(int messageID){
-        String res = "";
-        List<String> tables = Arrays.asList("HEADER", "GEOMETRY", "IMAGE");
-        try {
-            for (String table : tables) {
-                byte[] key = Tuple.from(table, messageID).pack();
-                byte[] result = fdbTool.query(db, key);
-                List<Object> entry = new ArrayList<>();
-                int size = Tuple.fromBytes(result).size();
-                for (int i = 0; i < size; ++i) {
-                    entry.add(Tuple.fromBytes(result).get(i));
-                }
-                res += table+":"+ entry.toString()+"\n";
-//            System.out.println(entry.toString());
-            }
-        } catch (Exception e) {
-            return res;
-        }
-        return res;
-    }
 }
