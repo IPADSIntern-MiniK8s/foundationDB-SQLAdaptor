@@ -42,11 +42,21 @@ public class CalciteUtil {
         int columnSize = metaData.getColumnCount();
 
         while (resultSet.next()) {
-
             Map<String, Object> map = Maps.newLinkedHashMap();
             for (int i = 1; i < columnSize + 1; i++) {
-
-                map.put(metaData.getColumnLabel(i), resultSet.getString(i));
+                String label = metaData.getColumnLabel(i);
+                switch (label){
+                    case "X":
+                    case "Y":
+                    case "DIRECTION":
+                    case "V_X":
+                    case "V_Y":
+                    case "V_R":
+                        map.put(label, Double.valueOf(resultSet.getString(i))/1000);
+                        break;
+                    default:
+                        map.put(label, resultSet.getString(i));
+                }
             }
             list.add(map);
         }

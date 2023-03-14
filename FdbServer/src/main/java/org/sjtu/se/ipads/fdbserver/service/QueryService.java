@@ -52,8 +52,12 @@ public class QueryService {
                 byte[] result = fdbTool.query(db, key);
                 List<Object> entry = new ArrayList<>();
                 int size = Tuple.fromBytes(result).size();
-                for (int i = 0; i < size; ++i) {
-                    entry.add(Tuple.fromBytes(result).get(i));
+                for (int i = 1; i < size; ++i) {//first is message id
+                    if(table == "GEOMETRY"){
+                        entry.add(Double.valueOf(Tuple.fromBytes(result).get(i).toString())/1000);
+                    }else{
+                        entry.add(Tuple.fromBytes(result).get(i));
+                    }
                 }
                 res += table+":"+ entry+"\n";
 //            System.out.println(entry.toString());

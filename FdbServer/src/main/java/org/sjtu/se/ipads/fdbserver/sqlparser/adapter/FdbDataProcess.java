@@ -48,8 +48,8 @@ public class FdbDataProcess {
         List<Object[]> data = new ArrayList<>();
         for (byte[] elem : query_result) {
             List<Object> entry = parseObject(elem);
-            System.out.println("the entry: ");
-            System.out.println(entry);
+//            System.out.println("the entry: ");
+//            System.out.println(entry);
             data.add(entry.toArray());
         }
         return data;
