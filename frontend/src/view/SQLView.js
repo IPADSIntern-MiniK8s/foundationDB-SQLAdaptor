@@ -4,6 +4,15 @@ import {MyMenu} from "../components/MyMenu";
 import {useState} from "react";
 import {queryBySQL} from "../service/dataService";
 
+const key2title = {
+    "TIME_STAMP":"时间戳",
+    "X":"x轴坐标",
+    "Y":"y轴坐标",
+    "V_X":"x轴速度",
+    "V_Y":"y轴速度",
+    "DIRECTION":"转向速度",
+    "R":"方向",
+}
 
 export const SQLView = () => {
     const {
@@ -17,12 +26,16 @@ export const SQLView = () => {
     if(datas.length>0){
         let data = datas[0];
         for(const key of Object.keys(data)){
+            let title = key2title[key];
+            if(title == undefined){
+                continue;
+            }
             columns.push({
-                title:key,
+                title,
                 dataIndex:key,
-                key:key,
+                key,
             })
-            if(key=="TIME_STAMP"){
+            if(key==="TIME_STAMP"){
                 columns[columns.length-1]['sorter'] = (a,b)=>a.TIME_STAMP-b.TIME_STAMP
             }
         }
