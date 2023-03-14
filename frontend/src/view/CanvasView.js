@@ -1,9 +1,9 @@
-import {Button, Input, Layout, Slider, Space, Table, theme} from "antd";
+import {Button, Input, Layout, Slider, Space, Table, theme,Image} from "antd";
 import {Content, Header} from "antd/es/layout/layout";
 import {MyMenu} from "../components/MyMenu";
 import {useEffect, useState} from "react";
 import {queryBySQL} from "../service/dataService";
-import {ts2str} from "../utils/util";
+import {image_mock, image_mock2, ts2str} from "../utils/util";
 
 
 const drawLines = (ctx,canvas)=>{
@@ -130,7 +130,13 @@ export const CanvasView = () => {
                             setTimeNow(v);
                         }
                         }/>
-                        <canvas id="canvas" width="650px" height="650px"/>
+                        <Space>
+                            <canvas id="canvas" width="650px" height="650px"/>
+                            <Space direction={"vertical"}>
+                                <Image width={"400px"} src={"data:image/png;base64,"+image_mock}/>
+                                <Image width={"400px"} src={"data:image/png;base64,"+image_mock2}/>
+                            </Space>
+                        </Space>
                     </Space>
                 </div>
 
