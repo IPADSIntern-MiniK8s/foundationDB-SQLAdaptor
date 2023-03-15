@@ -27,8 +27,11 @@ export const SQLView = () => {
         let data = datas[0];
         for(const key of Object.keys(data)){
             let title = key2title[key];
-            if(title == undefined){
-                continue;
+            if(title === undefined){
+                if(key.indexOf("EXPR")===-1){
+                    continue;
+                }
+                title = key;
             }
             columns.push({
                 title,
