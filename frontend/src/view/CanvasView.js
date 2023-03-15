@@ -1,9 +1,10 @@
-import {Button, Input, Layout, Slider, Space, Table, theme,Image} from "antd";
+import {Button, Input, Layout, Slider, Space, Table, theme, Image, TimePicker, DatePicker} from "antd";
 import {Content, Header} from "antd/es/layout/layout";
 import {MyMenu} from "../components/MyMenu";
 import {useEffect, useState} from "react";
 import {queryBySQL} from "../service/dataService";
-import {image_mock, image_mock2, ts2str} from "../utils/util";
+import {image_mock, image_mock2, time2seconds, ts2str} from "../utils/util";
+import dayjs from "dayjs";
 
 
 const drawLines = (ctx,canvas)=>{
@@ -94,6 +95,9 @@ export const CanvasView = () => {
     } = theme.useToken();
 
     const [timeNow,setTimeNow] = useState(maxTs)
+    const [selectDate,setSelectDate] = useState(0)
+    const [selectTsBegin,setSelectTsBegin] = useState(0)
+    const [selectTsEnd,setSelectTsEnd] = useState(0)
     useEffect(()=>{
         let canvas = document.getElementById("canvas");
         let ctx = canvas.getContext("2d");
@@ -105,7 +109,6 @@ export const CanvasView = () => {
         drawCar(ctx,canvas,dataPoints_car1.filter(data=>data.t <= timeNow),1)
 
     },[timeNow])
-
 
     return(
         <Layout className="layout">
@@ -131,6 +134,20 @@ export const CanvasView = () => {
                         }
                         }/>
                         <Space>
+                            <Space direction={"vertical"}>
+                                <DatePicker placeholder={'日期'} onChange={(time,timeString)=>{
+                                    setSelectDate(dayjs(timeString).unix())
+                                }}/>
+                                <TimePicker.RangePicker  placeholder={['开始','结束']} onChange={
+                                    (times,timeStrings)=>{
+                                        setSelectTsBegin(time2seconds(timeStrings[0]) + selectDate);
+                                        setSelectTsEnd(time2seconds(timeStrings[1])+ selectDate);
+                                    }}/>
+                                <Button onChange={()=>{
+                                    console.log(selectTsBegin,selectTsEnd);
+                                    console.log(ts2str(selectTsBegin*1000),ts2str(selectTsEnd*1000));
+                                }}>查询</Button>
+                            </Space>
                             <canvas id="canvas" width="650px" height="650px"/>
                             <Space direction={"vertical"}>
                                 <Image width={"400px"} src={"data:image/png;base64,"+image_mock}/>

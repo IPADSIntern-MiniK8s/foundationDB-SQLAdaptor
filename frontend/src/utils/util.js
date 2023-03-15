@@ -17,3 +17,8 @@ export const ts2str = (ts)=>{
         pad(d.getSeconds());
     return dateStr
 }
+
+export const time2seconds = timeStr=>{
+    let [hour,minute,second] = timeStr.split(":");
+    return parseInt(hour)*3600 + parseInt(minute)*60+parseInt(second)
+}
