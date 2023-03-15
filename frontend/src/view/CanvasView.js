@@ -2,9 +2,10 @@ import {Button, Input, Layout, Slider, Space, Table, theme, Image, TimePicker, D
 import {Content, Header} from "antd/es/layout/layout";
 import {MyMenu} from "../components/MyMenu";
 import {useEffect, useState} from "react";
-import {queryBySQL} from "../service/dataService";
+import {getImagesByTs, queryBySQL} from "../service/dataService";
 import {image_mock, image_mock2, time2seconds, ts2str} from "../utils/util";
 import dayjs from "dayjs";
+import {CarCanvas} from "../components/CarCanvas";
 
 
 const drawLines = (ctx,canvas)=>{
@@ -98,17 +99,7 @@ export const CanvasView = () => {
     const [selectDate,setSelectDate] = useState(0)
     const [selectTsBegin,setSelectTsBegin] = useState(0)
     const [selectTsEnd,setSelectTsEnd] = useState(0)
-    useEffect(()=>{
-        let canvas = document.getElementById("canvas");
-        let ctx = canvas.getContext("2d");
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-
-
-        drawLines(ctx,canvas)
-        drawCar(ctx,canvas,dataPoints_car0.filter(data=>data.t <= timeNow),0)
-        drawCar(ctx,canvas,dataPoints_car1.filter(data=>data.t <= timeNow),1)
-
-    },[timeNow])
+    const [datas,setDatas] = useState([])
 
     return(
         <Layout className="layout">
@@ -128,11 +119,6 @@ export const CanvasView = () => {
                     }}
                 >
                     <Space direction={"vertical"}>
-                        {ts2str(timeNow/1000000)}
-                        <Slider min={minTs} max={maxTs} defaultValue={maxTs} onChange={v=>{
-                            setTimeNow(v);
-                        }
-                        }/>
                         <Space>
                             <Space direction={"vertical"}>
                                 <DatePicker placeholder={'日期'} onChange={(time,timeString)=>{
@@ -143,16 +129,18 @@ export const CanvasView = () => {
                                         setSelectTsBegin(time2seconds(timeStrings[0]) + selectDate);
                                         setSelectTsEnd(time2seconds(timeStrings[1])+ selectDate);
                                     }}/>
-                                <Button onChange={()=>{
-                                    console.log(selectTsBegin,selectTsEnd);
-                                    console.log(ts2str(selectTsBegin*1000),ts2str(selectTsEnd*1000));
+                                <Button onClick={()=>{
+                                    // console.log(selectTsBegin,selectTsEnd);
+                                    // console.log(ts2str(selectTsBegin*1000),ts2str(selectTsEnd*1000));
+                                    getImagesByTs(selectTsBegin*1000000000,selectTsEnd*1000000000,(data)=>{
+                                        setDatas(data.map(
+                                            datai=>{return{TIME_STAMP:parseInt(datai.TIME_STAMP),CAR_ID:datai.CAR_ID,
+                                            IMG:datai.IMG.substr(2,datai.IMG.length-3)}}
+                                        ));
+                                    })
                                 }}>查询</Button>
                             </Space>
-                            <canvas id="canvas" width="650px" height="650px"/>
-                            <Space direction={"vertical"}>
-                                <Image width={"400px"} src={"data:image/png;base64,"+image_mock}/>
-                                <Image width={"400px"} src={"data:image/png;base64,"+image_mock2}/>
-                            </Space>
+                            <CarCanvas datas={datas}/>
                         </Space>
                     </Space>
                 </div>
