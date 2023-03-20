@@ -2,7 +2,7 @@ import {Button, Input, Layout, Slider, Space, Table, theme, Image, TimePicker, D
 import {Content, Header} from "antd/es/layout/layout";
 import {MyMenu} from "../components/MyMenu";
 import {useEffect, useState} from "react";
-import {getImagesByTs, queryBySQL} from "../service/dataService";
+import {getImagesByTs, getXYImgByTs, queryBySQL} from "../service/dataService";
 import {image_mock, image_mock2, time2seconds, ts2str} from "../utils/util";
 import dayjs from "dayjs";
 import {CarCanvas} from "../components/CarCanvas";
@@ -132,10 +132,12 @@ export const CanvasView = () => {
                                 <Button onClick={()=>{
                                     // console.log(selectTsBegin,selectTsEnd);
                                     // console.log(ts2str(selectTsBegin*1000),ts2str(selectTsEnd*1000));
-                                    getImagesByTs(selectTsBegin*1000000000,selectTsEnd*1000000000,(data)=>{
+                                    getXYImgByTs(selectTsBegin*1000000000,selectTsEnd*1000000000,(data)=>{
                                         setDatas(data.map(
                                             datai=>{return{TIME_STAMP:parseInt(datai.TIME_STAMP),CAR_ID:datai.CAR_ID,
-                                            IMG:datai.IMG.substr(2,datai.IMG.length-3)}}
+                                            IMG:datai.IMG.substr(2,datai.IMG.length-3),
+                                            X:parseFloat(datai.X),Y:parseFloat(datai.Y)
+                                            }}
                                         ));
                                     })
                                 }}>查询</Button>

@@ -1,7 +1,7 @@
 import {Button, Input, Layout, Slider, Space, Table, theme, Image, TimePicker, DatePicker} from "antd";
 import {Content, Header} from "antd/es/layout/layout";
 import {MyMenu} from "../components/MyMenu";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {getImagesByTs, queryBySQL} from "../service/dataService";
 import {image_mock, image_mock2, time2seconds, ts2str} from "../utils/util";
 import dayjs from "dayjs";
@@ -39,7 +39,7 @@ const carid2color = car_id=>{
     }
 }
 const drawCar = (ctx,canvas,dataPoints,car_id)=>{
-
+    console.log(dataPoints)
     if(dataPoints.length === 0){
         return
     }
@@ -67,68 +67,91 @@ const drawCar = (ctx,canvas,dataPoints,car_id)=>{
     ctx.closePath();
 
 }
-let pointsN = 1000;
-let maxTs = 1678782445117078342;
-let minTs = 1678782419367315554;
-let dataPoints_car0 = [];
-for(let i = 0 ;i < pointsN;i++){
-    let lambda = i/pointsN;
-    dataPoints_car0.push({
-        x:i*0.5,
-        y:i*0.5,
-        t:lambda*maxTs + (1-lambda)*minTs
-    })
-}
+// let pointsN = 1000;
+// let maxTs = 1678782445117078342;
+// let minTs = 1678782419367315554;
+// let dataPoints_car0 = [];
+// for(let i = 0 ;i < pointsN;i++){
+//     let lambda = i/pointsN;
+//     dataPoints_car0.push({
+//         x:i*0.5,
+//         y:i*0.5,
+//         t:lambda*maxTs + (1-lambda)*minTs
+//     })
+// }
+//
+// let dataPoints_car1 = [];
+// for(let i = 0 ;i < pointsN;i++){
+//     let lambda = i/pointsN;
+//     dataPoints_car1.push({
+//         x:650-i*0.5,
+//         y:i*0.5,
+//         t:lambda*maxTs + (1-lambda)*minTs
+//     })
+// }
 
-let dataPoints_car1 = [];
-for(let i = 0 ;i < pointsN;i++){
-    let lambda = i/pointsN;
-    dataPoints_car1.push({
-        x:650-i*0.5,
-        y:i*0.5,
-        t:lambda*maxTs + (1-lambda)*minTs
-    })
-}
+const SIZE = 650;
 export const CarCanvas = (props) => {
     const {
         token: { colorBgContainer },
     } = theme.useToken();
 
-    console.log(props.datas)
-    let maxTs = 0;
-    let minTs = 0;
+    // console.log(props.datas)
+    // props.datas[20].X  = props.datas[19].X + 100;
+    // props.datas[21].X  = props.datas[20].X + 100;
+    // props.datas[22].X  = props.datas[21].X + 100;
+    // props.datas[20].Y  = props.datas[19].Y + 100;
+    // props.datas[21].Y  = props.datas[20].Y + 100;
+    // props.datas[22].Y  = props.datas[21].Y + 100;
+    let timestamps = props.datas.map(data=>data.TIME_STAMP);
+    let Xs = props.datas.map(data=>data.X);
+    let Ys = props.datas.map(data=>data.Y);
+    let maxTs = Math.max(...timestamps);
+    let minTs = Math.min(...timestamps);
+    let maxX = Math.max(...Xs)+10;
+    let minX = Math.min(...Xs)-10;
+    let maxY = Math.max(...Ys)+10;
+    let minY = Math.min(...Ys)-10;
+
+    console.log(maxX,minX,maxY,minY)
+
+    const convertX = x=>{
+        if(maxX===minX) {
+            return (x - minX) / maxX * SIZE;
+        }
+        return (x-minX)/(maxX-minX)*SIZE
+        };
+    const convertY = y=>{
+        if(maxY===minY) {
+            return (y - minY) / maxY * SIZE;
+        }
+        return (y-minY)/(maxY-minY)*SIZE
+    };
 
     let carids = {};
 
-    if(props.datas.length!==0){
-        maxTs = props.datas[0].TIME_STAMP;
-        minTs = props.datas[0].TIME_STAMP;
-        for(let datai of props.datas){
-            if(datai.TIME_STAMP < minTs){
-                minTs = datai.TIME_STAMP;
-            }
-            if(datai.TIME_STAMP > maxTs){
-                maxTs = datai.TIME_STAMP;
-            }
-            carids[datai.CAR_ID] = 1;
-        }
+    for(let datai of props.datas){
+        carids[datai.CAR_ID] = 1;
     }
 
+
     const [timeNow,setTimeNow] = useState(maxTs)
-    useEffect(()=>{
-        let canvas = document.getElementById("canvas");
-        let ctx = canvas.getContext("2d");
-        ctx.clearRect(0,0,canvas.width,canvas.height);
 
+    const canvasRef = useRef(null);
 
-        drawLines(ctx,canvas)
-        drawCar(ctx,canvas,dataPoints_car0.filter(data=>data.t <= timeNow),0)
-        drawCar(ctx,canvas,dataPoints_car1.filter(data=>data.t <= timeNow),1)
+    if(canvasRef.current){
+        let ctx = canvasRef.current.getContext("2d");
+        ctx.clearRect(0,0,canvasRef.current.width,canvasRef.current.height);
 
-    },[timeNow])
+        drawLines(ctx,canvasRef.current)
+        for(const carid of Object.keys(carids)){
+            drawCar(ctx,canvasRef.current,props.datas.filter(data=>data.TIME_STAMP <= timeNow && data.CAR_ID ===carid).map(data=>{return {x:convertX(data.X),y:convertY(data.Y)}}),parseInt(carid))
+        }
+    }
     const imgs = []
     for(const carid of Object.keys(carids)){
-        let data = props.datas.filter(data=>Math.abs(data.TIME_STAMP - timeNow) < 600000000 && data.CAR_ID===carid);
+        let data = props.datas.filter(data=>Math.abs(data.TIME_STAMP - timeNow) < 700000000 && data.CAR_ID===carid);
+        data.sort();
         if(data.length>0){
             imgs.push(
                 <Image width={"400px"} src={"data:image/png;base64,"+data[0].IMG}/>
@@ -142,7 +165,7 @@ export const CarCanvas = (props) => {
                 setTimeNow(v);
             }}/>
             <Space>
-                <canvas id="canvas" width="650px" height="650px"/>
+                <canvas ref={canvasRef} id="canvas" width={`${SIZE}px`}height={`${SIZE}px`}/>
                 <Space direction={"vertical"}>
                     {imgs}
                 </Space>
