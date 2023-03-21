@@ -134,7 +134,9 @@ export const CarCanvas = (props) => {
         data.sort();
         if(data.length>0){
             imgs.push(
-                <Image width={`${IMG_WIDTH}px`} src={"data:image/png;base64,"+data[0].IMG}/>
+                <div style={{padding:"5px",backgroundColor:carid2color(parseInt(carid))}}>
+                    <Image width={`${IMG_WIDTH}px`} src={"data:image/png;base64,"+data[0].IMG}/>
+                </div>
             )
         }
     }
