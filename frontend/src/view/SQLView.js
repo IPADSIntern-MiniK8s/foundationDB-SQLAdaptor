@@ -42,6 +42,12 @@ export const SQLView = () => {
             if(key==="TIME_STAMP"){
                 columns[columns.length-1]['sorter'] = (a,b)=>a.TIME_STAMP-b.TIME_STAMP
             }
+            if(key==="V_X"){
+                columns[columns.length-1]['sorter'] = (a,b)=>a.V_X-b.V_X
+            }
+            if(key==="V_Y"){
+                columns[columns.length-1]['sorter'] = (a,b)=>a.V_Y-b.V_Y
+            }
         }
     }
     return(
