@@ -68,29 +68,8 @@ const drawCar = (ctx,canvas,dataPoints,car_id)=>{
     ctx.closePath();
 
 }
-// let pointsN = 1000;
-// let maxTs = 1678782445117078342;
-// let minTs = 1678782419367315554;
-// let dataPoints_car0 = [];
-// for(let i = 0 ;i < pointsN;i++){
-//     let lambda = i/pointsN;
-//     dataPoints_car0.push({
-//         x:i*0.5,
-//         y:i*0.5,
-//         t:lambda*maxTs + (1-lambda)*minTs
-//     })
-// }
-//
-// let dataPoints_car1 = [];
-// for(let i = 0 ;i < pointsN;i++){
-//     let lambda = i/pointsN;
-//     dataPoints_car1.push({
-//         x:650-i*0.5,
-//         y:i*0.5,
-//         t:lambda*maxTs + (1-lambda)*minTs
-//     })
-// }
 
+const IMG_WIDTH=400
 const SIZE = 650;
 export const CarCanvas = (props) => {
     const {
@@ -155,21 +134,24 @@ export const CarCanvas = (props) => {
         data.sort();
         if(data.length>0){
             imgs.push(
-                <Image width={"400px"} src={"data:image/png;base64,"+data[0].IMG}/>
+                <Image width={`${IMG_WIDTH}px`} src={"data:image/png;base64,"+data[0].IMG}/>
             )
         }
     }
     return(
         <Space direction={"vertical"}>
-            {ts2str(timeNow/1000000)}
+            {props.datas.length>0 && ts2str(timeNow/1000000)}
             <Slider min={minTs} max={maxTs} defaultValue={maxTs} onChange={v=>{
                 setTimeNow(v);
             }}/>
             <Space>
                 <canvas ref={canvasRef} id="canvas" width={`${SIZE}px`}height={`${SIZE}px`}/>
-                <Space direction={"vertical"}>
-                    {imgs}
-                </Space>
+                <div style={{width:`${IMG_WIDTH}px`}}>
+
+                    <Space direction={"vertical"}>
+                        {imgs}
+                    </Space>
+                </div>
             </Space>
         </Space>
     )
