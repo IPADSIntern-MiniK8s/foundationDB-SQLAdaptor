@@ -43,6 +43,7 @@ const drawCar = (ctx,canvas,dataPoints,car_id)=>{
     if(dataPoints.length === 0){
         return
     }
+    console.log(car_id)
 
     ctx.strokeStyle = carid2color(car_id);
     ctx.lineWidth = 2;
@@ -96,7 +97,7 @@ export const CarCanvas = (props) => {
         token: { colorBgContainer },
     } = theme.useToken();
 
-    // console.log(props.datas)
+    console.log(props.datas)
     // props.datas[20].X  = props.datas[19].X + 100;
     // props.datas[21].X  = props.datas[20].X + 100;
     // props.datas[22].X  = props.datas[21].X + 100;
@@ -108,24 +109,24 @@ export const CarCanvas = (props) => {
     let Ys = props.datas.map(data=>data.Y);
     let maxTs = Math.max(...timestamps);
     let minTs = Math.min(...timestamps);
-    let maxX = Math.max(...Xs)+10;
-    let minX = Math.min(...Xs)-10;
-    let maxY = Math.max(...Ys)+10;
-    let minY = Math.min(...Ys)-10;
+    let maxX = Math.max(...Xs);
+    let minX = Math.min(...Xs);
+    let maxY = Math.max(...Ys);
+    let minY = Math.min(...Ys);
 
     console.log(maxX,minX,maxY,minY)
 
     const convertX = x=>{
         if(maxX===minX) {
-            return (x - minX) / maxX * SIZE;
+            return (x - minX) / maxX *  (SIZE-50)+20;
         }
-        return (x-minX)/(maxX-minX)*SIZE
+        return (x-minX)/(maxX-minX)* (SIZE-50)+20;
         };
     const convertY = y=>{
         if(maxY===minY) {
-            return (y - minY) / maxY * SIZE;
+            return (y - minY) / maxY * (SIZE-50)+20;
         }
-        return (y-minY)/(maxY-minY)*SIZE
+        return (y-minY)/(maxY-minY) * (SIZE-50)+20;
     };
 
     let carids = {};

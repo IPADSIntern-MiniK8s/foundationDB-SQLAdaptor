@@ -12,6 +12,7 @@ const key2title = {
     "V_Y":"y轴速度",
     "DIRECTION":"转向速度",
     "R":"方向",
+    "CAR_ID":"小车编号",
 }
 
 export const SQLView = () => {
