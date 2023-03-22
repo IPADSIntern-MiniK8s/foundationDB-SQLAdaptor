@@ -50,6 +50,7 @@ export const CanvasView = () => {
                                     // console.log(selectTsBegin,selectTsEnd);
                                     // console.log(ts2str(selectTsBegin*1000),ts2str(selectTsEnd*1000));
                                     getXYImgByTs(selectTsBegin*1000000000,selectTsEnd*1000000000,(data)=>{
+                                        console.log(data.length)
                                         setDatas(data.map(
                                             datai=>{return{TIME_STAMP:parseInt(datai.TIME_STAMP),CAR_ID:datai.CAR_ID,
                                             IMG:datai.IMG.substr(2,datai.IMG.length-3),

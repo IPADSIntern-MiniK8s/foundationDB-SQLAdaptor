@@ -29,7 +29,7 @@ public class FdbDataProcess {
         int size = Tuple.fromBytes(elem).size();
         List<Object> entry = new ArrayList<>();
         for (int i = 0; i < size; ++i) {
-            System.out.println(fields.get(i).get("type").toString());
+//            System.out.println(fields.get(i).get("type").toString());
             if (fields.get(i).get("type").toString().equals("int")) {
                 entry.add(Tuple.fromBytes(elem).getLong(i));
             } else {

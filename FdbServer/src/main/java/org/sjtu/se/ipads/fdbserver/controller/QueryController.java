@@ -17,6 +17,9 @@ public class QueryController {
 
     @RequestMapping("/queryBySQL")
     public String queryBySQL(@RequestParam("SQL") String sql) {
-        return queryService.queryBySQL(sql);
+        System.out.println(sql);
+        String res = queryService.queryBySQL(sql);
+        System.out.println(res.length());
+        return res;
     }
 }

@@ -3,6 +3,7 @@ import {Content, Header} from "antd/es/layout/layout";
 import {MyMenu} from "../components/MyMenu";
 import {useState} from "react";
 import {queryBySQL} from "../service/dataService";
+import {ts2str} from "../utils/util";
 
 const key2title = {
     "TIME_STAMP":"时间戳",
@@ -38,6 +39,7 @@ export const SQLView = () => {
                 title,
                 dataIndex:key,
                 key,
+                render:item=><div>{item} {key==="TIME_STAMP"&& ts2str(item/1000000)}</div>
             })
             if(key==="TIME_STAMP"){
                 columns[columns.length-1]['sorter'] = (a,b)=>a.TIME_STAMP-b.TIME_STAMP
