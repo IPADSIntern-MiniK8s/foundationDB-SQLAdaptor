@@ -76,13 +76,7 @@ export const CarCanvas = (props) => {
         token: { colorBgContainer },
     } = theme.useToken();
 
-    console.log(props.datas)
-    // props.datas[20].X  = props.datas[19].X + 100;
-    // props.datas[21].X  = props.datas[20].X + 100;
-    // props.datas[22].X  = props.datas[21].X + 100;
-    // props.datas[20].Y  = props.datas[19].Y + 100;
-    // props.datas[21].Y  = props.datas[20].Y + 100;
-    // props.datas[22].Y  = props.datas[21].Y + 100;
+    // console.log(props.datas)
     let timestamps = props.datas.map(data=>data.TIME_STAMP);
     let Xs = props.datas.map(data=>data.X);
     let Ys = props.datas.map(data=>data.Y);
@@ -103,9 +97,9 @@ export const CarCanvas = (props) => {
         };
     const convertY = y=>{
         if(maxY===minY) {
-            return (y - minY) / maxY * (SIZE-50)+20;
+            return (1 - (y - minY) / maxY) * (SIZE-50)+20;
         }
-        return (y-minY)/(maxY-minY) * (SIZE-50)+20;
+        return (1 - (y-minY)/(maxY-minY)) * (SIZE-50)+20;
     };
 
     let carids = {};
