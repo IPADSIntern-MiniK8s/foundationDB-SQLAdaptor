@@ -1,0 +1,22 @@
+{
+  "indexes": [
+    {
+      "table_name": "HEADER",
+      "name": "CAR_ID",
+      "type": "varchar",
+      "attribute": "multi"
+    },
+    {
+      "table_name": "HEADER",
+      "name": "TIME_STAMP",
+      "type": "varchar",
+      "attribute": "multi"
+    },
+    {
+      "table_name": "GEOMETRY",
+      "name": "X",
+      "type": "varchar",
+      "attribute": "multi"
+    }
+  ]
+}

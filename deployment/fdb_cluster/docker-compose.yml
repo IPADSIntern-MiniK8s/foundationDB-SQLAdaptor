@@ -1,0 +1,53 @@
+version: "3.3"
+services:
+  fdb_node1:
+    container_name: fdb_node1 
+    image: fdb 
+    environment:
+      privileged: "true"
+      TZ: Asia/Shanghai
+    volumes:
+      - /root/fdb_cluster/fdb_node1_data:/var/fdb/data
+    networks:
+      fdb_cluster:
+        ipv4_address: 172.30.0.2
+
+  fdb_node2:
+    container_name: fdb_node2 
+    image: fdb 
+    environment:
+      privileged: "true"
+      TZ: Asia/Shanghai
+    volumes:
+      - /root/fdb_cluster/fdb_node2_data:/var/fdb/data
+    networks:
+      fdb_cluster:
+        ipv4_address: 172.30.0.3
+
+  fdb_node3:
+    container_name: fdb_node3 
+    image: fdb 
+    environment:
+      privileged: "true"
+      TZ: Asia/Shanghai
+    volumes:
+      - /root/fdb_cluster/fdb_node3_data:/var/fdb/data
+    networks:
+      fdb_cluster:
+        ipv4_address: 172.30.0.4
+
+  web:
+    container_name: web 
+    image: web
+    environment:
+      TZ: Asia/Shanghai    
+    ports:
+      - "5000:5000"
+    networks:
+      fdb_cluster:
+        ipv4_address: 172.30.1.3
+
+networks:
+  fdb_cluster:
+    external:
+      name: fdb_cluster
