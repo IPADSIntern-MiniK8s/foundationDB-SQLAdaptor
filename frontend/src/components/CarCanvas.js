@@ -43,7 +43,7 @@ const drawCar = (ctx,canvas,dataPoints,car_id)=>{
     if(dataPoints.length === 0){
         return
     }
-    console.log(car_id)
+    // console.log(car_id)
 
     ctx.strokeStyle = carid2color(car_id);
     ctx.lineWidth = 2;
@@ -79,15 +79,16 @@ export const CarCanvas = (props) => {
     // console.log(props.datas)
     let timestamps = props.datas.map(data=>data.TIME_STAMP);
     let Xs = props.datas.map(data=>data.X);
+    // console.log(Xs)
     let Ys = props.datas.map(data=>data.Y);
-    let maxTs = Math.max(...timestamps);
-    let minTs = Math.min(...timestamps);
+    // let maxTs = Math.max(...timestamps);
+    // let minTs = Math.min(...timestamps);
     let maxX = Math.max(...Xs);
     let minX = Math.min(...Xs);
     let maxY = Math.max(...Ys);
     let minY = Math.min(...Ys);
 
-    console.log(maxX,minX,maxY,minY)
+    // console.log(maxX,minX,maxY,minY)
 
     const convertX = x=>{
         if(maxX===minX) {
@@ -109,7 +110,9 @@ export const CarCanvas = (props) => {
     }
 
 
-    const [timeNow,setTimeNow] = useState(maxTs)
+    const [timeNow,setTimeNow] = useState(0)
+    const [maxTs,setMaxTs] = useState(0)
+    const [minTs,setMinTs] = useState(0)
 
     const canvasRef = useRef(null);
 
@@ -134,10 +137,20 @@ export const CarCanvas = (props) => {
             )
         }
     }
+    useEffect(()=>{
+        let ts = props.datas.map(data=>data.TIME_STAMP);
+        setTimeNow(Math.max(...ts));
+        setMaxTs(Math.max(...ts));
+        setMinTs(Math.min(...ts));
+    },[props.datas])
+    console.log(timeNow,minTs,maxTs)
     return(
         <Space direction={"vertical"}>
-            {props.datas.length>0 && ts2str(timeNow/1000000)}
-            <Slider min={minTs} max={maxTs} defaultValue={maxTs} onChange={v=>{
+            <div style={{fontSize:"30px"}}>
+
+                {props.datas.length>0 && ts2str(timeNow/1000000)}
+            </div>
+            <Slider min={minTs} max={maxTs} defaultValue={timeNow} onChange={v=>{
                 setTimeNow(v);
             }}/>
             <Space>

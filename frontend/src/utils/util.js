@@ -8,6 +8,7 @@ const pad = (n)=>{
     return ""+n
 }
 export const ts2str = (ts)=>{
+    // console.log(ts)
     let d = new Date(ts);
     let dateStr = (d.getFullYear()) + "-" +
         pad(d.getMonth() + 1) + "-" +

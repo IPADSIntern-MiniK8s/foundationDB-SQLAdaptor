@@ -11,8 +11,8 @@ const key2title = {
     "Y":"y轴坐标",
     "V_X":"x轴速度",
     "V_Y":"y轴速度",
-    "DIRECTION":"转向速度",
-    "R":"方向",
+    "DIRECTION":"方向",
+    "V_R":"转向速度",
     "CAR_ID":"小车编号",
 }
 
@@ -68,7 +68,7 @@ export const SQLView = () => {
                         background: colorBgContainer,
                     }}
                 >
-                    <Input style={{height:"100px",fontSize:"40px"}}placeholder="sql" onChange={e=>setSql(e.target.value)}/>
+                    <Input style={{height:"60px",fontSize:"20px",overflow:"scroll"}}placeholder="sql" onChange={e=>setSql(e.target.value)}/>
                     <Button onClick={()=>{queryBySQL(sql,(d)=>{
                         console.log(d[0]);
                         setDatas(d)

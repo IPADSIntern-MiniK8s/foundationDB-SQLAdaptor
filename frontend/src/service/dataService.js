@@ -14,6 +14,6 @@ export const getImagesByTs = (start,end,callback)=>{
 }
 export const getXYImgByTs = (start,end,callback)=>{
     console.log("getXYImgByTs",ts2str(start/1000000),ts2str(end/1000000))
-    let sql = `select h.TIME_STAMP,h.CAR_ID,i.IMG,g.X,g.Y from IMAGE  as i join HEADER as h on h.MESSAGE_ID = i.MESSAGE_ID join GEOMETRY as g on h.MESSAGE_ID = g.MESSAGE_ID where h.TIME_STAMP >=${start} and h.TIME_STAMP <=${end}`
+    let sql = `select h.TIME_STAMP,h.CAR_ID,i.IMG,g.X,g.Y from IMAGE  as i join HEADER as h on h.MESSAGE_ID = i.MESSAGE_ID join GEOMETRY as g on h.MESSAGE_ID = g.MESSAGE_ID where h.TIME_STAMP >=${start} and h.TIME_STAMP <=${end} and (g.X<>0 or g.Y<>0)`
     getRequest(apiUrl+"/queryBySQL?SQL="+sql,callback)
 }
