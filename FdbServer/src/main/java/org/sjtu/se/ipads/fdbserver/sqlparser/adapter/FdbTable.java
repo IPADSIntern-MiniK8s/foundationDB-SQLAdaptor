@@ -36,7 +36,6 @@ public class FdbTable extends AbstractTable implements ScannableTable {
                 : ImmutableMap.copyOf(allFields);
     }
 
-    // TODO: 在读取csv文件时是读取表头，不知道这里是不是还需要
     @Override public RelDataType getRowType(RelDataTypeFactory typeFactory) {
         if (protoRowType != null) {
             return protoRowType.apply(typeFactory);
